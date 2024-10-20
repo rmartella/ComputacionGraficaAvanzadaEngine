@@ -1,3 +1,4 @@
+#pragma once
 /*
 Creado por Reynaldo Martell
 Computacion Grafica e Interaccion Humano Computadora
@@ -35,10 +36,17 @@ Fecha: 08/02/2018
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 
+#include "Colliders.hpp"
+
 class DLL_PUBLIC AbstractModel {
 public:
+
 	AbstractModel() = default;
-	~AbstractModel() = default;
+
+	~AbstractModel() {
+		if (initCollider)
+			delete initCollider;
+	};
 
 	glm::vec3 getPosition() {
 		return this->position;
@@ -78,6 +86,17 @@ protected:
 	glm::vec4 color = glm::vec4(0.0, 0.0, 0.0, 1.0);
 	glm::vec3 orientation = glm::vec3(0.0);
 	glm::mat4 modelMatrix = glm::mat4(1.0);
+	Collider* initCollider = nullptr;
+
+	void generatModelMatrix(glm::mat4 parentTrans){
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), this->scale);
+		glm::mat4 translate = glm::translate(glm::mat4(1.0f), this->position);
+		glm::quat oX = glm::angleAxis<float>(glm::radians(orientation.x), glm::vec3(1.0, 0.0, 0.0));
+		glm::quat oY = glm::angleAxis<float>(glm::radians(orientation.y), glm::vec3(0.0, 1.0, 0.0));
+		glm::quat oZ = glm::angleAxis<float>(glm::radians(orientation.z), glm::vec3(0.0, 0.0, 1.0));
+		glm::quat ori = oZ * oY * oX;
+		modelMatrix = parentTrans * translate * glm::mat4_cast(ori) * scale;
+	}
 };
 
 #endif // ABSTRACTMODEL_H

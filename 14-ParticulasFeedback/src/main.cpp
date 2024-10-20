@@ -46,13 +46,14 @@ Shader shaderMulLighting;
 //Shader para el terreno
 Shader shaderTerrain;
 
-std::shared_ptr<FirstPersonCamera> camera(new FirstPersonCamera());
 float distanceFromTarget = 7.0;
 
 std::shared_ptr<Sphere> esfera1;
 std::shared_ptr<Sphere> esfera2;
 
 std::shared_ptr<Box> box1;
+Box* boxCollider;
+std::shared_ptr<Sphere> sphereCollider;
 
 std::shared_ptr<SkyBoxSphere> skyBoxSphere;
 
@@ -102,6 +103,12 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	box1 = std::make_shared<Box>(&shaderTexture);
 
+	boxCollider = new Box(&shaderTexture);
+	boxCollider->enableWireMode();
+
+	sphereCollider = std::make_shared<Sphere>(&shaderTexture, 20, 20);
+	sphereCollider->enableWireMode();
+
 	textureLanding = std::make_shared<Texture2D>("../Textures/landingPad.jpg", true);
 
 	skyBoxSphere = std::make_shared<SkyBoxSphere>(&shaderSkybox, std::vector<std::pair<GLenum, std::string>>{
@@ -113,10 +120,13 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		{GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, "../Textures/mp_bloodvalley/blood-valley_lf.tga"}
 	}, 20);
 
-	modelRock = std::make_shared<Model>(&shaderMulLighting, "../models/rock/rock.obj");
+	modelRock = std::make_shared<Model>(&shaderMulLighting, "../models/rock/rock.obj", SPHERE);
+	modelRock->getCollider()->setRenderableCollider(sphereCollider.get());
 
 	modelMay = std::make_shared<Model>(&shaderMulLighting, "../models/boblampclean/boblampclean.md5mesh");
 	modelMay->setAnimationIndex(0);
+	modelMay->getCollider()->setRenderableCollider(boxCollider);
+	//modelMay->enableWireMode();
 
 	lightManager.addDirectionalLight(
 		Light(glm::vec3(0.2), glm::vec3(0.5), glm::vec3(0.2)), 
@@ -137,8 +147,6 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	terrain = std::make_shared<BlendMapTerrain>(&shaderTerrain, 32.0f, -16.0f, "../Textures/heightmap.png", blendMapTextures);
 	terrain->setScaleUVTerrain(glm::vec2(35.0f));
 	terrain->setScale(glm::vec3(0.78125));
-
-	camera->setPosition(glm::vec3(0.0, 3.0, 4.0));
 }
 
 void destroy() {
@@ -148,6 +156,7 @@ void destroy() {
 	// Shaders Delete
 	shader.destroy();
 	shaderSkybox.destroy();
+	delete boxCollider;
 }
 
 void prepareScene(){
@@ -160,23 +169,19 @@ void renderSolidScene(){
 
 	textureLanding->bind(GL_TEXTURE0);
 	esfera1->setPosition(glm::vec3(-2.0, 2.0, -2.0));
-	esfera1->enableWireMode();
-	esfera1->render();
-	esfera1->disableWireMode();
+	//esfera1->render();
 
 	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
-	box1->enableWireMode();
-	box1->render();
-	box1->disableWireMode();
+	//box1->render();
 
 	modelRock->setPosition(glm::vec3(4.0, 2.0, -2.0));
 	modelRock->render();
 
 	modelMay->setPosition(glm::vec3(10.0, 2.0, -2.0));
 	modelMay->setScale(glm::vec3(0.021));
-	modelMay->enableWireMode();
 	modelMay->render();
-	modelMay->disableWireMode();
+	//modelMay->getCollider()->getRenderableCollider()->render();
+	//boxCollider->render();
 
 	glm::mat4 boneMatrix;
 	bool nodeFound = false;
@@ -228,9 +233,8 @@ void applicationLoop() {
 
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
 				(float) GLFWManager::screenWidth / (float) GLFWManager::screenHeight, 0.01f, 100.0f);
+		Camera* camera = GLFWManager::inputManager->getCamera();
 		glm::mat4 view = camera->getViewMatrix();
-
-		//glfwManager.inputManager->
 
 		// Settea la matriz de vista y projection al shader con solo color
 		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(projection));

@@ -32,19 +32,23 @@
 class DLL_PUBLIC Renderable {
 
 public:
+  Renderable() = default;
 	Renderable(Shader * shader_ptr) : shader_ptr(shader_ptr) {};
 	~Renderable() = default;
 
 	void virtual render(glm::mat4 parentTrans = glm::mat4(1.0f)) = 0;
 
 	void enableWireMode() {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    wiredMode = true;
 	}
 
 	void disableWireMode() {
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    wiredMode = false;
 	}
 
 protected:
 	Shader * shader_ptr;
+  bool wiredMode = false;
 };

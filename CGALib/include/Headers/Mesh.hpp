@@ -52,12 +52,15 @@ public:
   Mesh(const aiMesh *mesh, const aiMaterial *material, const std::string path,
     const aiScene* scene, const AssimpNodeData& rootNode, Shader *shader);
   ~Mesh();
-  void render(float timeInSeconds, std::map<std::string, Bone>& bones);
+  void render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::mat4 m_GlobalInverseTransform);
   bool getFinalBoneMatrix(std::string nodeName, glm::mat4& boneMatrix);
 
   void setAnimationIndex(int animationIndex){
 		this->animationIndex = animationIndex;
 	}
+
+  glm::vec3& getMaxs() { return maxs; }
+  glm::vec3& getMins() { return mins; }
 
 protected:
 
@@ -79,6 +82,8 @@ private:
   aiAnimation** animations;
   u_int numAnimations;
   int animationIndex = 0;
+  glm::vec3 mins = glm::vec3(FLT_MAX);
+	glm::vec3 maxs = glm::vec3(-FLT_MAX);
 
   struct VertexBoneData {
 		unsigned int IDs[4];

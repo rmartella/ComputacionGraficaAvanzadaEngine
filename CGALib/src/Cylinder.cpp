@@ -1,6 +1,6 @@
 #include "Headers/Cylinder.hpp"
 
-Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, float bottomRadius, float height) : SimpleModel(shader_ptr){
+Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, float bottomRadius, float height) : SimpleModel(shader_ptr) {
 	this->slices = slices;
 	this->stacks = stacks;
 	float stackHeight = height / stacks;
@@ -85,4 +85,6 @@ Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, 
 	}
 
 	this->init(vertexArray, index);
+
+	initCollider = new SBBCollider(glm::vec3(0.0), topRadius);
 }

@@ -31,4 +31,5 @@ Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio) : Simple
 		index[i * 6 + 5] = i + 1;
 	}
 	this->init(vertexArray, index);
+	initCollider = new SBBCollider(glm::vec3(0), ratio);
 }

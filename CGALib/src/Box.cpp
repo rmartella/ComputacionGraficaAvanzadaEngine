@@ -32,4 +32,6 @@ Box::Box(Shader* shader_ptr) : SimpleModel(shader_ptr) {
 	};
 
 	this->init(vertexArray, index);
+
+	initCollider = new OBBCollider(glm::vec3(0.0), glm::vec3(0.5), glm::quat(0.0, 0.0, 0.0, 1));
 }

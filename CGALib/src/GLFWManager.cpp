@@ -73,6 +73,7 @@ bool GLFWManager::processInput(bool continueApplication = true) {
 	}
 	
     // TODO Movimientos de la camara o eventos de InputManager
+	inputManager->controller(TimeManager::Instance().DeltaTime);
 	
 	glfwPollEvents();
 	return continueApplication;

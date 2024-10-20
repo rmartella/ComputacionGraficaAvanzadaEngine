@@ -34,10 +34,11 @@
 #include "AbstractModel.hpp"
 #include "Renderable.hpp"
 #include "Mesh.hpp"
+#include "Colliders.hpp"
 
 class DLL_PUBLIC Model : public AbstractModel, public Renderable {
 public:
-	Model(Shader* shader_ptr, const std::string & path);
+	Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider = BOX);
 	void render(glm::mat4 parentTrans = glm::mat4(1.0f));
 	void readHierarchyData(AssimpNodeData& dest, const aiNode* src);
 	void readMissingBones(const aiAnimation* animation);
@@ -53,6 +54,8 @@ public:
 		return rootNode;
 	}
 
+	Collider* getCollider() { return collider; }
+
 protected:
 	void loadModel(const std::string & path);
 	Assimp::Importer importer;
@@ -65,8 +68,13 @@ private:
 	std::string directory;
 	std::map<std::string, Bone> bones;
 	AssimpNodeData rootNode;
+	TYPE_COLLIDER typeCollider;
+	Collider* collider;
 	
 	void processNode(aiNode* node, const aiScene* scene);
+	void createCollider();
+	void updateCollider();
+	void updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform);
 };
 
 #endif /* MODEL_H_ */

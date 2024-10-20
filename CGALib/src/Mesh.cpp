@@ -21,7 +21,7 @@ Mesh::~Mesh(){
 	glDeleteBuffers(1, &VBOBones);
 }
 
-void Mesh::render(float timeInSeconds, std::map<std::string, Bone>& bones) {
+void Mesh::render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::mat4 m_GlobalInverseTransform) {
 	// Enlace de las texturas apropiadas
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
@@ -72,7 +72,7 @@ void Mesh::render(float timeInSeconds, std::map<std::string, Bone>& bones) {
 			finalBoneMatrices, bones);
 		for (int i = 0; i < finalBoneMatrices.size(); ++i){
 			shader_ptr->setMatrix4("bones[" + std::to_string(i) + "]", 1, GL_FALSE,
-				glm::value_ptr(finalBoneMatrices[i]));
+				glm::value_ptr(m_GlobalInverseTransform * finalBoneMatrices[i]));
 		}
 	}
 
@@ -93,6 +93,20 @@ void Mesh::processMesh(const aiMesh* mesh, const aiMaterial* material, std::map<
 	std::vector<Vertex> vertexArray;
 	// Recorre los vertices de cada maya
 	for (GLuint i = 0; i < mesh->mNumVertices; i++) {
+		// Compute the AABB
+		if (mesh->mVertices[i].x < mins.x)
+			mins.x = mesh->mVertices[i].x;
+		if (mesh->mVertices[i].x > maxs.x)
+			maxs.x = mesh->mVertices[i].x;
+		if (mesh->mVertices[i].y < mins.y)
+			mins.y = mesh->mVertices[i].y;
+		if (mesh->mVertices[i].y > maxs.y)
+			maxs.y = mesh->mVertices[i].y;
+		if (mesh->mVertices[i].z < mins.z)
+			mins.z = mesh->mVertices[i].z;
+		if (mesh->mVertices[i].z > maxs.z)
+			maxs.z = mesh->mVertices[i].z;
+
 		glm::vec2 text = glm::vec2(0.0f, 0.0f);
 		// Texture Coordinates
 		if (mesh->mTextureCoords[0]) {// Esto se ejecuta si la maya contiene texturas.

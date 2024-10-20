@@ -1,29 +1,31 @@
 #include <assimp/postprocess.h>
-
 #include "Headers/Model.hpp"
 #include "Headers/TimeManager.h"
 #include "Headers/assimp_glm_helpers.hpp"
 
-Model::Model(Shader* shader_ptr, const std::string & path): Renderable(shader_ptr) {
+Model::Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider): Renderable(shader_ptr), typeCollider(typeCollider) {
 	this->loadModel(path);
 }
 
 void Model::render(glm::mat4 parentTrans) {
+	GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
 	float runningTime = TimeManager::Instance().GetRunningTime();
 	shader_ptr->turnOn();
-    glm::mat4 scale = glm::scale(glm::mat4(1.0f), this->scale);
-	glm::mat4 translate = glm::translate(glm::mat4(1.0f), this->position);
-	glm::quat oX = glm::angleAxis<float>(glm::radians(orientation.x), glm::vec3(1.0, 0.0, 0.0));
-	glm::quat oY = glm::angleAxis<float>(glm::radians(orientation.y), glm::vec3(0.0, 1.0, 0.0));
-	glm::quat oZ = glm::angleAxis<float>(glm::radians(orientation.z), glm::vec3(0.0, 0.0, 1.0));
-	glm::quat ori = oZ * oY * oX;
-	modelMatrix = parentTrans * translate * glm::mat4_cast(ori) * scale;
-    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(modelMatrix));
+	AbstractModel::generatModelMatrix(parentTrans);
+    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(this->m_GlobalInverseTransform * modelMatrix));
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
-		this->meshes[i]->render(runningTime, bones);
+		this->meshes[i]->render(runningTime, bones, this->m_GlobalInverseTransform);
 		glActiveTexture(GL_TEXTURE0);
 	}
+	this->updateCollider();
+	collider->updateLogicCollider(initCollider, this->m_GlobalInverseTransform * modelMatrix);
+	if(wiredMode)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     shader_ptr->turnOff();
+	glPolygonMode(GL_FRONT, polygonMode[0]);
+    glPolygonMode(GL_BACK, polygonMode[1]);
 }
 
 void Model::loadModel(const std::string & path) {
@@ -40,10 +42,11 @@ void Model::loadModel(const std::string & path) {
 		return;
 	}
 
-	this->m_GlobalInverseTransform = AssimpGLMHelpers::ConvertMatrixToGLMFormat(scene->mRootNode->mTransformation);
+	/*this->m_GlobalInverseTransform = AssimpGLMHelpers::ConvertMatrixToGLMFormat(scene->mRootNode->mTransformation);
 	
 	this->m_GlobalInverseTransform = glm::inverse(
-			this->m_GlobalInverseTransform);
+			this->m_GlobalInverseTransform);*/
+	this->m_GlobalInverseTransform = glm::mat4(1.0f);
 
 	// Recupera el path del directorio del archivo.
 	this->directory = path.substr(0, path.find_last_of('/'));
@@ -52,6 +55,8 @@ void Model::loadModel(const std::string & path) {
 	
 	// Se procesa el nodo raiz recursivamente.
 	this->processNode(scene->mRootNode, scene);
+
+	this->createCollider();
 
 	if(scene->mNumAnimations > 0)
 		this->readMissingBones(scene->mAnimations[0]);
@@ -87,7 +92,6 @@ void Model::getFinalBoneMatrix(std::string nodeNameToFind, AssimpNodeData& node,
 		nodeFound = true;
 		return;
 	}
-
 
 	for(int i = 0; i < node.children.size(); i++){
 		if(nodeFound)
@@ -146,4 +150,54 @@ void Model::readMissingBones(const aiAnimation* animation){
 	}
 
 	//this->boneInfoMap = boneInfoMap;
+}
+
+void Model::createCollider(){
+	glm::vec3 mins = glm::vec3(FLT_MAX);
+	glm::vec3 maxs = glm::vec3(-FLT_MAX);
+	for(u_int i = 0; i < meshes.size(); i++){
+		for(u_int j = 0; j < 3; j++){
+			if (meshes[i]->getMins()[j] < mins[j])
+				mins[j] = meshes[i]->getMins()[j];
+			if (meshes[i]->getMaxs()[j] > maxs[j])
+				maxs[j] = meshes[i]->getMaxs()[j];
+		}
+	}
+
+	switch (typeCollider) {
+	case BOX:
+		this->initCollider = new OBBCollider();
+		this->collider = new OBBCollider();
+		break;
+	case SPHERE:
+		this->initCollider = new SBBCollider();
+		this->collider = new SBBCollider();
+		break;
+	}
+	this->initCollider->updateCollider(mins, maxs);	
+}
+
+void Model::updateCollider(){
+	if(bones.size() > 0){
+		glm::vec3 mins = glm::vec3(FLT_MAX);
+		glm::vec3 maxs = glm::vec3(-FLT_MAX);
+		this->updateColliderFromBones(rootNode, mins, maxs, glm::mat4(1.0f));
+		this->initCollider->updateCollider(mins, maxs);
+	}
+}
+
+void Model::updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform){
+	std::string nodeName = node.name;
+	auto boneIt = bones.find(nodeName);
+	glm::mat4 nodeTransform = node.transformation;
+	if (boneIt != bones.end()) 
+		nodeTransform = boneIt->second.getLocalTransform();
+
+	for(uint i = 0; i < 3; i++){
+		mins[i] = std::min(mins[i], parentTansform[3][i]);
+		maxs[i] = std::max(maxs[i], parentTansform[3][i]);
+	}
+
+	for(int i = 0; i < node.children.size(); i++)
+		this->updateColliderFromBones(node.children[i], mins, maxs, parentTansform * nodeTransform);
 }
