@@ -28,11 +28,13 @@
 #endif
 
 #include "SimpleModel.hpp"
+#include "SimpleModelCollider.hpp"
 
-class DLL_PUBLIC Box : public SimpleModel
+class DLL_PUBLIC Box : public SimpleModelCollider
 {
 public:
 	Box(Shader* shader_ptr);
+  void updateCollider() override;
 };
 
 #endif // BOX_H

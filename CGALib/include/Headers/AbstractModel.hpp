@@ -43,10 +43,7 @@ public:
 
 	AbstractModel() = default;
 
-	~AbstractModel() {
-		if (initCollider)
-			delete initCollider;
-	};
+	~AbstractModel() = default;
 
 	glm::vec3 getPosition() {
 		return this->position;
@@ -86,7 +83,6 @@ protected:
 	glm::vec4 color = glm::vec4(0.0, 0.0, 0.0, 1.0);
 	glm::vec3 orientation = glm::vec3(0.0);
 	glm::mat4 modelMatrix = glm::mat4(1.0);
-	Collider* initCollider = nullptr;
 
 	void generatModelMatrix(glm::mat4 parentTrans){
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), this->scale);

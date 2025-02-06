@@ -1,6 +1,4 @@
-#ifndef SPHERE_H
-#define SPHERE_H
-
+#pragma once
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -26,17 +24,26 @@
   #endif
 #endif
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include "SimpleModel.hpp"
-#include "ObjectCollider.hpp"
+#include "Colliders.hpp"
 
-class DLL_PUBLIC Sphere : public SimpleModel, protected ObjectCollider
-{
+class DLL_PUBLIC ObjectCollider {
 public:
-	Sphere(Shader* shader_ptr, int slices, int stacks, float ratio = 0.5);
-private:
-  void updateCollider() override;
+	ObjectCollider(TYPE_COLLIDER typeCollider) : typeCollider(typeCollider) {}
+	~ObjectCollider(){
+		if(collider != nullptr)
+			delete collider;
+    if(initCollider != nullptr)
+			delete initCollider;
+	}
+
+	Collider* getCollider() { return collider; }
+
+protected:
+	TYPE_COLLIDER typeCollider;
+	Collider* collider = nullptr;
+  Collider* initCollider = nullptr;
+	
+  virtual void updateCollider() = 0;
 };
 
-#endif // SPHERE_H
+

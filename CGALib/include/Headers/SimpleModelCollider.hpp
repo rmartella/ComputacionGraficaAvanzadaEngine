@@ -25,14 +25,15 @@
   #endif
 #endif
 
+#include "ObjectCollider.hpp"
 #include "ModelBase.hpp"
 #include "Drawable.hpp"
 
-class DLL_PUBLIC SimpleModel : public ModelBase, protected Drawable {
+class DLL_PUBLIC SimpleModelCollider : public ModelBase, protected Drawable, public ObjectCollider{
 
 public:
-	SimpleModel(Shader* shader_ptr) : ModelBase(shader_ptr) {};
-	~SimpleModel() = default;
+	SimpleModelCollider(Shader* shader_ptr, TYPE_COLLIDER typeCollider) : ModelBase(shader_ptr), ObjectCollider(typeCollider) {};
+	~SimpleModelCollider() = default;
 
 	void render(glm::mat4 parentTrans = glm::mat4(1.0f)) override {
     GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
@@ -46,6 +47,7 @@ public:
     this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(modelMatrix));
 		this->shader_ptr->setVectorFloat4("ourColor", glm::value_ptr(color));
     Drawable::draw();
+    this->updateCollider();
     shader_ptr->turnOff();
     glPolygonMode(GL_FRONT, polygonMode[0]);
     glPolygonMode(GL_BACK, polygonMode[1]);

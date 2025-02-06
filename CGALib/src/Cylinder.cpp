@@ -1,6 +1,7 @@
 #include "Headers/Cylinder.hpp"
 
-Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, float bottomRadius, float height) : SimpleModel(shader_ptr) {
+Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, float bottomRadius, float height) : 
+	SimpleModel(shader_ptr), ObjectCollider(CYLINDER) {
 	this->slices = slices;
 	this->stacks = stacks;
 	float stackHeight = height / stacks;

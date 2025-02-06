@@ -3,12 +3,18 @@
 #include "Headers/TimeManager.h"
 #include "Headers/assimp_glm_helpers.hpp"
 
-Model::Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider): Renderable(shader_ptr), typeCollider(typeCollider) {
+Model::Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider): 
+	ModelBase(shader_ptr), ObjectCollider(typeCollider){
 	this->loadModel(path);
 }
 
 void Model::render(glm::mat4 parentTrans) {
 	GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
+	glGetIntegerv(GL_POLYGON_MODE, polygonMode);
+	if(wiredMode)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	float runningTime = TimeManager::Instance().GetRunningTime();
 	shader_ptr->turnOn();
 	AbstractModel::generatModelMatrix(parentTrans);
@@ -18,11 +24,6 @@ void Model::render(glm::mat4 parentTrans) {
 		glActiveTexture(GL_TEXTURE0);
 	}
 	this->updateCollider();
-	collider->updateLogicCollider(initCollider, this->m_GlobalInverseTransform * modelMatrix);
-	if(wiredMode)
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     shader_ptr->turnOff();
 	glPolygonMode(GL_FRONT, polygonMode[0]);
     glPolygonMode(GL_BACK, polygonMode[1]);
@@ -152,7 +153,7 @@ void Model::readMissingBones(const aiAnimation* animation){
 	//this->boneInfoMap = boneInfoMap;
 }
 
-void Model::createCollider(){
+void Model::createCollider() {
 	glm::vec3 mins = glm::vec3(FLT_MAX);
 	glm::vec3 maxs = glm::vec3(-FLT_MAX);
 	for(u_int i = 0; i < meshes.size(); i++){
@@ -184,6 +185,7 @@ void Model::updateCollider(){
 		this->updateColliderFromBones(rootNode, mins, maxs, glm::mat4(1.0f));
 		this->initCollider->updateCollider(mins, maxs);
 	}
+	collider->updateLogicCollider(initCollider, this->m_GlobalInverseTransform * modelMatrix);
 }
 
 void Model::updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform){

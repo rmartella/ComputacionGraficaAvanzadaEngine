@@ -53,6 +53,8 @@ public:
 	TYPE_COLLIDER& getTypeCollider() { return type; }
 
 protected:
+	void virtual updateCollider(glm::mat4 modelMatrix) = 0;
+
 	TYPE_COLLIDER type;
 	glm::vec3 center;
 private:
@@ -70,6 +72,11 @@ public:
 
 	SBBCollider(const SBBCollider& other) : Collider(SPHERE, other.center){
 		this->ratio = other.ratio;
+	}
+
+	void updateCollider(glm::mat4 modelMatrix) {
+		this->ratio = glm::length(glm::vec3(modelMatrix[0]));
+		this->center = modelMatrix[3];
 	}
 
 	void updateCollider(const glm::vec3 mins, const glm::vec3 maxs) override {
@@ -135,6 +142,15 @@ public:
 	}
 
 	glm::vec3& getHalfways() { return halfways; }
+
+	void updateCollider(glm::mat4 modelMatrix) {
+		float sx = glm::length(glm::vec3(modelMatrix[0]));
+		float sy = glm::length(glm::vec3(modelMatrix[1]));
+		float sz = glm::length(glm::vec3(modelMatrix[2]));
+		this->halfways = this->halfways * glm::vec3(sx, sy, sz);
+		this->orientation = glm::quat_cast(modelMatrix);
+		this->center = modelMatrix[3];
+	}
 
 	void updateCollider(const glm::vec3 mins, const glm::vec3 maxs) override {
 		this->center = glm::vec3((mins.x + maxs.x) / 2.0f,

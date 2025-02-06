@@ -31,18 +31,14 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include "AbstractModel.hpp"
-#include "Renderable.hpp"
+#include "ModelBase.hpp"
+#include "ObjectCollider.hpp"
 #include "Mesh.hpp"
-#include "Colliders.hpp"
 
-class DLL_PUBLIC Model : public AbstractModel, public Renderable {
+class DLL_PUBLIC Model : public ModelBase, protected ObjectCollider {
 public:
 	Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider = BOX);
-	~Model(){
-		if(collider != nullptr)
-			delete collider;
-	}
+	~Model() = default;
 	void render(glm::mat4 parentTrans = glm::mat4(1.0f));
 	void readHierarchyData(AssimpNodeData& dest, const aiNode* src);
 	void readMissingBones(const aiAnimation* animation);
@@ -72,12 +68,10 @@ private:
 	std::string directory;
 	std::map<std::string, Bone> bones;
 	AssimpNodeData rootNode;
-	TYPE_COLLIDER typeCollider;
-	Collider* collider = nullptr;
 	
 	void processNode(aiNode* node, const aiScene* scene);
 	void createCollider();
-	void updateCollider();
+	void updateCollider() override;
 	void updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform);
 };
 

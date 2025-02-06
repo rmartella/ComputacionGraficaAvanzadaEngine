@@ -128,6 +128,8 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	modelMay->getCollider()->setRenderableCollider(boxCollider);
 	//modelMay->enableWireMode();
 
+	box1->getCollider()->setRenderableCollider(boxCollider);
+
 	lightManager.addDirectionalLight(
 		Light(glm::vec3(0.2), glm::vec3(0.5), glm::vec3(0.2)), 
 		glm::vec3(-0.707106781, -0.707106781, 0.0));
@@ -172,7 +174,7 @@ void renderSolidScene(){
 	//esfera1->render();
 
 	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
-	//box1->render();
+	box1->render();
 
 	modelRock->setPosition(glm::vec3(4.0, 2.0, -2.0));
 	modelRock->render();
