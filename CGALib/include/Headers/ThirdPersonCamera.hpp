@@ -1,3 +1,6 @@
+#ifndef THIRDPERSONCAMERA_H
+#define THIRDPERSONCAMERA_H
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -23,22 +26,27 @@
   #endif
 #endif
 
-#include "InputManager.hpp"
-#include "FirstPersonCamera.hpp"
-#include "ThirdPersonCamera.hpp"
+#include "Camera.hpp"
+#include "AbstractModel.hpp"
 
-class GLFWInputManager : public InputManager {
+class DLL_PUBLIC ThirdPersonCamera: public Camera
+{
 public:
-
-	GLFWInputManager(std::shared_ptr<Camera> camera = std::make_shared<FirstPersonCamera>()) 
-    : InputManager(camera){
+    ThirdPersonCamera(float distanceFromTarget = 7.0);
+    void mouseMoveCamera(float xoffset, float yoffset, float dt);
+    void scrollMoveCamera(float soffset, float dt);
+    void setModelTarget(AbstractModel* modelTarget) { this->modelTarget = modelTarget; }
+    void setDistanceFromTarget(float distanceFromTarget) {
+		this->distanceFromTarget = distanceFromTarget;
 	}
 
-	void keyPressed(int code, float deltaTime, int state) override;
-	void mouseMoved(float mouseX, float mouseY) override;
-	void mouseClicked(int code, int state) override;
-	void mouseScroll(float yoffset) override;
-	void controller(double deltaTime) override;
+protected:
+    void updateCamera();
+    
 private:
-    bool enableCountSelected = true;
+    float distanceFromTarget;
+    float angleAroundTarget;
+    AbstractModel* modelTarget;
 };
+
+#endif // THIRDPERSONCAMERA_H

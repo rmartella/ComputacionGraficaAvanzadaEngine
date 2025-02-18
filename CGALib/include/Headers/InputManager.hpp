@@ -40,12 +40,12 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Camera.h"
+#include "Camera.hpp"
 
 class InputManager {
 public:
 
-	InputManager() :
+	InputManager(std::shared_ptr<Camera> camera) : camera(camera), 
 			lastMousePos(glm::ivec2(0.0)), dx(0), dy(0), ds(0) {}
 
 	void virtual keyPressed(int code, float deltaTime, int state) = 0;
@@ -61,9 +61,15 @@ public:
 		return false;
 	}
 
-	Camera * getCamera(){
-		return camera.get();
+	std::shared_ptr<Camera> getCamera(){
+		return camera;
 	}
+
+    void setCamera(std::shared_ptr<Camera> camera){
+		this->camera = camera;
+	}
+
+	int& getModelSelected() { return modelSelected; }
 
 protected:
 	glm::ivec2 lastMousePos;
@@ -72,6 +78,7 @@ protected:
 
 	float dx, dy, ds;
 	std::shared_ptr<Camera> camera;
+	int modelSelected = 1;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "Headers/FirstPersonCamera.h"
+#include "Headers/FirstPersonCamera.hpp"
 
 FirstPersonCamera::FirstPersonCamera(glm::vec3 position, glm::vec3 worldUp,
 	glm::vec3 front, float yaw, float pitch, float speed, float sensitivity){
@@ -20,9 +20,6 @@ void FirstPersonCamera::mouseMoveCamera(float xoffset, float yoffset, float dt) 
 	pitch += yoffset;
 
 	updateCamera();
-}
-
-void FirstPersonCamera::scrollMoveCamera(float soffset, float dt) {
 }
 
 void FirstPersonCamera::updateCamera() {

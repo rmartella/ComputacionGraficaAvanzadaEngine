@@ -66,11 +66,14 @@ bool GLFWManager::init(int width, int height, std::string strTitle,
 	return true;
 }
 
-bool GLFWManager::processInput(bool continueApplication = true) {
+bool GLFWManager::processInput(bool continueApplication = true, const std::vector<std::function<void(int)>>& callbacks = {}) {
 	if (glfwWindowShouldClose(window) != 0
 			||  inputManager->getStatusKey(GLFW_KEY_ESCAPE)) {
 		return false;
 	}
+
+	for (const auto& callback : callbacks)
+		callback(inputManager->getModelSelected());
 	
     // TODO Movimientos de la camara o eventos de InputManager
 	inputManager->controller(TimeManager::Instance().DeltaTime);

@@ -37,7 +37,7 @@
 
 class DLL_PUBLIC Model : public ModelBase, protected ObjectCollider {
 public:
-	Model(Shader* shader_ptr, const std::string & path, TYPE_COLLIDER typeCollider = BOX);
+	Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX);
 	~Model() = default;
 	void render(glm::mat4 parentTrans = glm::mat4(1.0f));
 	void readHierarchyData(AssimpNodeData& dest, const aiNode* src);

@@ -4,6 +4,7 @@
  *  Created on: Nov 14, 2019
  *      Author: rey
  */
+#pragma once
 
 #ifndef BASETERRAIN_H_
 #define BASETERRAIN_H_

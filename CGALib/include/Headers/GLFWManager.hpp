@@ -26,6 +26,9 @@
   #endif
 #endif
 
+#include <vector>
+#include <functional>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -40,7 +43,7 @@ public:
 	virtual bool init(int width, int height, std::string strTitle,
 			bool isFullScreen);
 	virtual void swapTheBuffers();
-	virtual bool processInput(bool continueApplication);
+	virtual bool processInput(bool continueApplication, const std::vector<std::function<void(int)>>& callbacks);
 
 	static void reshapeCallback(GLFWwindow* Window, int widthRes,
 			int heightRes);

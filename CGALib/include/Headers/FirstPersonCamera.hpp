@@ -1,5 +1,6 @@
-#ifndef THIRDPERSONCAMERA_H
-#define THIRDPERSONCAMERA_H
+
+#ifndef FIRSTPERSONCAMERA_H
+#define FIRSTPERSONCAMERA_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -26,15 +27,22 @@
   #endif
 #endif
 
-#include "Camera.h"
+#define YAW	-90.0f
+#define PITCH 0.0f
 
-class DLL_PUBLIC ThirdPersonCamera: public Camera
+#include "Camera.hpp"
+
+class DLL_PUBLIC FirstPersonCamera : public Camera
 {
 public:
-    ThirdPersonCamera();
-    void mouseMoveCamera(float xoffset, float yoffset, float dt);
-    void scrollMoveCamera(float soffset, float dt);
-    void updateCamera();
+	FirstPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 worldUp =
+		glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
+		float yaw = YAW, float pitch = PITCH, float speed = SPEED, float sensitivity = SENSITIVTY);
+	void mouseMoveCamera(float xoffset, float yoffset, float dt);
+	void moveFrontCamera(bool dir, float dt);
+	void moveRightCamera(bool dir, float dt);
+private:
+	void updateCamera();
 };
 
-#endif // THIRDPERSONCAMERA_H
+#endif // FIRSTPERSONCAMERA_H

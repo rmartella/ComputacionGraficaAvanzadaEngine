@@ -27,7 +27,7 @@ public:
 
 	virtual bool init(int width, int height, std::string strTitle,
 			bool isFullScreen) = 0;
-	virtual bool processInput(bool continueApplication) = 0;
+	virtual bool processInput(bool continueApplication, const std::vector<std::function<void(int)>>& callbacks) = 0;
 	virtual void swapTheBuffers() = 0;
 	virtual void destroy() = 0;
 };

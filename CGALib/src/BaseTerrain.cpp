@@ -119,27 +119,27 @@ glm::vec3 BaseTerrain::computeNormal(int x, int z, unsigned char * data, int ima
 }
 
 float BaseTerrain::getHeightTerrain(float worldX, float worldZ){
-	float terrainX = worldX + textureHeightMap->getWidth() / 2.0f - position.x;
-	float terrainZ = worldZ + textureHeightMap->getHeight() / 2.0f - position.y;
-	float gridSquareSizeX = 1.0f;
-	float gridSquareSizeZ = 1.0f;
+	float terrainX = (worldX - position.x) / scale[0] + textureHeightMap->getWidth() / 2.0f ;
+	float terrainZ = (worldZ - position.z) / scale[2] + textureHeightMap->getHeight() / 2.0f;
+	float gridSquareSizeX = 1.0;
+	float gridSquareSizeZ = 1.0;
 	int gridX = floor(terrainX / gridSquareSizeX);
 	int gridZ = floor(terrainZ / gridSquareSizeZ);
-	if(gridX < 0 || gridX > textureHeightMap->getHeight() - 1 || gridZ < 0 || gridZ > textureHeightMap->getHeight() - 1)
+	if(gridX < 0 || gridX > textureHeightMap->getWidth() - 1 || gridZ < 0 || gridZ > textureHeightMap->getHeight() - 1)
 		return position.y;
 	float xCoord = fmod(terrainX, gridSquareSizeX) / gridSquareSizeX;
 	float zCoord = fmod(terrainZ, gridSquareSizeZ) / gridSquareSizeZ;
 	float answer;
 	if(xCoord <= (1 - zCoord)){
-		answer = barryCentric(glm::vec3(0, heights[gridX][gridZ], 0),
-				glm::vec3(1, heights[gridX + 1][gridZ], 0),
-				glm::vec3(0, heights[gridX][gridZ + 1], 1),
+		answer = barryCentric(glm::vec3(0, heights[gridX][gridZ] * scale[1], 0),
+				glm::vec3(1, heights[gridX + 1][gridZ] * scale[1], 0),
+				glm::vec3(0, heights[gridX][gridZ + 1] * scale[1], 1),
 				glm::vec2(xCoord, zCoord));
 	}
 	else{
-		answer = barryCentric(glm::vec3(1, heights[gridX + 1][gridZ], 0),
-				glm::vec3(1, heights[gridX + 1][gridZ + 1], 1),
-				glm::vec3(0, heights[gridX][gridZ + 1], 1),
+		answer = barryCentric(glm::vec3(1, heights[gridX + 1][gridZ] * scale[1], 0),
+				glm::vec3(1, heights[gridX + 1][gridZ + 1] * scale[1], 1),
+				glm::vec3(0, heights[gridX][gridZ + 1] * scale[1], 1),
 				glm::vec2(xCoord, zCoord));
 	}
 	return answer + position.y;

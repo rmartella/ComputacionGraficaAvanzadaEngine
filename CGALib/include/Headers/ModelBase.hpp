@@ -28,10 +28,12 @@
 #include "Renderable.hpp"
 #include "Colliders.hpp"
 
+class BaseTerrain;
+
 class DLL_PUBLIC ModelBase : public AbstractModel, public Renderable {
 public:
-	ModelBase(Shader* shader_ptr) : Renderable(shader_ptr) {}
+	ModelBase(Shader* shader_ptr, BaseTerrain* terrain = nullptr) : Renderable(shader_ptr), terrain(terrain) {}
 	virtual void render(glm::mat4 parentTrans = glm::mat4(1.0f)) = 0;
+protected:
+    BaseTerrain* terrain;
 };
-
-

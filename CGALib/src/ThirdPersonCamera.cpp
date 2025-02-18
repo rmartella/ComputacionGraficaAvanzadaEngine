@@ -1,10 +1,10 @@
-#include "Headers/ThirdPersonCamera.h"
+#include "Headers/ModelBase.hpp"
+#include "Headers/ThirdPersonCamera.hpp"
 
-ThirdPersonCamera::ThirdPersonCamera(){
+ThirdPersonCamera::ThirdPersonCamera(float distanceFromTarget){
     pitch = glm::radians(20.0f);
     yaw = 0.0f;
     angleAroundTarget = 0.0f;
-    angleTarget = 0.0;
     distanceFromTarget = 1.0f;
     sensitivity = SENSITIVTY;
     worldUp = glm::vec3(0.0, 1.0, 0.0);
@@ -36,6 +36,24 @@ void ThirdPersonCamera::scrollMoveCamera(float soffset, float dt){
 }
 
 void ThirdPersonCamera::updateCamera(){
+    glm::vec3 targetPosition = glm::vec3(0.0);
+    glm::vec3 targetForward = glm::vec3(0.0);
+    float angleTarget = 0.0;
+
+    if(modelTarget != nullptr){
+        targetPosition = glm::vec3(modelTarget->getModelMatrix()[3]);
+        targetForward = glm::normalize(glm::vec3(modelTarget->getModelMatrix()[0]));
+        
+        float dotProduct = glm::dot(targetForward, glm::vec3(1, 0, 0));
+        float magnitudeA = glm::length(targetForward);
+        float magnitudeB = glm::length(glm::vec3(1, 0, 0));
+        angleTarget = glm::acos(dotProduct / (magnitudeA * magnitudeB));
+        
+        glm::vec3 crossProduct = glm::cross(glm::vec3(1, 0, 0), targetForward);
+        if (crossProduct.y < 0)
+            angleTarget = -angleTarget;
+    }
+
     //Calculate Horizontal distance
     float horizontalDistance = distanceFromTarget * cos(pitch);
     //Calculate Vertical distance
@@ -45,16 +63,16 @@ void ThirdPersonCamera::updateCamera(){
     float theta = angleTarget + angleAroundTarget;
     float offsetx = horizontalDistance * sin(theta);
     float offsetz = horizontalDistance * cos(theta);
-    position.x = cameraTarget.x - offsetx;
-    position.z = cameraTarget.z - offsetz;
-    position.y = cameraTarget.y + verticalDistance;
+    position.x = targetPosition.x - offsetx;
+    position.y = targetPosition.y + verticalDistance;
+    position.z = targetPosition.z - offsetz;
 
     yaw = angleTarget - (180 + angleAroundTarget);
 
     if (distanceFromTarget < 0)
-    	front = glm::normalize(position - cameraTarget);
+    	front = glm::normalize(position - targetPosition);
     else
-    	front = glm::normalize(cameraTarget - position);
+    	front = glm::normalize(targetPosition - position);
 
     this->right = glm::normalize(glm::cross(this->front, this->worldUp));
     this->up = glm::normalize(glm::cross(this->right, this->front));

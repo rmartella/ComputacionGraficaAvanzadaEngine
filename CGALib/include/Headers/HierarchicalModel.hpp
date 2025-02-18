@@ -1,7 +1,4 @@
-
-#ifndef FIRSTPERSONCAMERA_H
-#define FIRSTPERSONCAMERA_H
-
+#pragma once
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -27,22 +24,15 @@
   #endif
 #endif
 
-#define YAW	-90.0f
-#define PITCH 0.0f
+#include "ModelBase.hpp"
 
-#include "Camera.h"
-
-class DLL_PUBLIC FirstPersonCamera : public Camera
-{
+class DLL_PUBLIC HierarchicalModel : public ModelBase {
 public:
-	FirstPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 worldUp =
-		glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
-		float yaw = YAW, float pitch = PITCH, float speed = SPEED, float sensitivity = SENSITIVTY);
-	void mouseMoveCamera(float xoffset, float yoffset, float dt);
-	void scrollMoveCamera(float soffset, float dt);
-	void updateCamera();
-	void moveFrontCamera(bool dir, float dt);
-	void moveRightCamera(bool dir, float dt);
+	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr) : ModelBase(shader_ptr, terrain){}
+  std::vector<float>& getJoints() { return joints; }
+
+protected:
+  std::vector<float> joints;
 };
 
-#endif // FIRSTPERSONCAMERA_H
+

@@ -1,3 +1,6 @@
+#ifndef MODEL_H_
+#define MODEL_H_
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -23,22 +26,19 @@
   #endif
 #endif
 
-#include "InputManager.hpp"
-#include "FirstPersonCamera.hpp"
-#include "ThirdPersonCamera.hpp"
+#include "ModelBase.hpp"
+#include "Model.hpp"
 
-class GLFWInputManager : public InputManager {
+class DLL_PUBLIC ModelSMAnimate : public ModelBase {
 public:
 
-	GLFWInputManager(std::shared_ptr<Camera> camera = std::make_shared<FirstPersonCamera>()) 
-    : InputManager(camera){
-	}
 
-	void keyPressed(int code, float deltaTime, int state) override;
-	void mouseMoved(float mouseX, float mouseY) override;
-	void mouseClicked(int code, int state) override;
-	void mouseScroll(float yoffset) override;
-	void controller(double deltaTime) override;
+protected:
+  std::vector<
+    std::shared_ptr<Model> models;
+
 private:
-    bool enableCountSelected = true;
+	
 };
+
+#endif /* MODEL_H_ */
