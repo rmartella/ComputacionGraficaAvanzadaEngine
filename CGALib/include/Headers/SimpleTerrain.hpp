@@ -39,7 +39,7 @@
 class DLL_PUBLIC SimpleTerrain : public BaseTerrain {
 public:
 	SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap, std::string background);
-  void render(glm::mat4 parentTrans = glm::mat4(1.0f)) override;
+  void render() override;
   void setScaleUVTerrain(glm::vec2 scaleUVTerrain) { this->scaleUVTerrain = scaleUVTerrain; }
 
 protected:

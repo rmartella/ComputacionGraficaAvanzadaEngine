@@ -15,10 +15,10 @@ SimpleTerrain::SimpleTerrain(Shader* shader_ptr, float yScale, float yShift, std
 SimpleTerrain::SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap) : BaseTerrain(shader_ptr, yScale, yShift, heightMap) {
 }
 
-void SimpleTerrain::render(glm::mat4 parentTrans) {
+void SimpleTerrain::render() {
 	textureBackground->bind(GL_TEXTURE0);
 	shader_ptr->setVectorFloat2("scaleUV", glm::value_ptr(scaleUVTerrain));
-	BaseTerrain::render(parentTrans);
+	BaseTerrain::render();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 

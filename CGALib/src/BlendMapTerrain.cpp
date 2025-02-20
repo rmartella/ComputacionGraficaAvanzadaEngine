@@ -28,7 +28,7 @@ BlendMapTerrain::BlendMapTerrain(Shader* shader_ptr, float yScale, float yShift,
 		textureBlendMap = std::make_shared<Texture2D>(blendMapIt->second);
 }
 
-void BlendMapTerrain::render(glm::mat4 parentTrans) {
+void BlendMapTerrain::render() {
 	textureR->bind(GL_TEXTURE1);
 	shader_ptr->setInt("rTexture", 1);
 	textureG->bind(GL_TEXTURE2);
@@ -37,6 +37,6 @@ void BlendMapTerrain::render(glm::mat4 parentTrans) {
 	shader_ptr->setInt("bTexture", 3);
 	textureBlendMap->bind(GL_TEXTURE4);
 	shader_ptr->setInt("blendMapTexture", 4);
-	SimpleTerrain::render(parentTrans);
+	SimpleTerrain::render();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

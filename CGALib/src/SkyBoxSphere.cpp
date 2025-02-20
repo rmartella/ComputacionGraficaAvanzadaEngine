@@ -1,6 +1,6 @@
 #include "Headers/SkyBoxSphere.hpp"
 
-void SkyBoxSphere::render(glm::mat4 parentTrans){
+void SkyBoxSphere::render(){
 	GLint oldDepthFuncMode;
 	GLint oldCullFaceMode;
 	// deshabilita el modo del recorte de caras ocultas para ver las esfera desde adentro
@@ -10,7 +10,7 @@ void SkyBoxSphere::render(glm::mat4 parentTrans){
 	glCullFace(GL_FRONT);
 	glDepthFunc(GL_LEQUAL);
 	TextureCube::bind(GL_TEXTURE0);
-	Sphere::render(parentTrans);
+	Sphere::render();
 	glCullFace(oldCullFaceMode);
 	glDepthFunc(oldDepthFuncMode);
 }

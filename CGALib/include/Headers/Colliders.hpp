@@ -116,7 +116,8 @@ public:
 			glm::mat4 matrixCollider = glm::mat4(1.0);
 			matrixCollider = glm::translate(matrixCollider, center);
 			matrixCollider = glm::scale(matrixCollider, glm::vec3(ratio * 2.0f));
-			this->getRenderableCollider()->render(matrixCollider);
+			this->getRenderableCollider()->getModelMatrix() = matrixCollider;
+			this->getRenderableCollider()->render();
 		}
 	}
 
@@ -270,13 +271,21 @@ public:
 
 	void updateLogicCollider(Collider* baseCollider, glm::mat4 modelMatrix) override {
 		OBBCollider* obbColliderBase = dynamic_cast<OBBCollider*>(baseCollider);
+		
 		glm::mat4 modelMatrixCollider = glm::mat4(modelMatrix);
-		// Set the orientation of collider before doing the scale
-		glm::quat ori = glm::quat_cast(modelMatrixCollider);
-		modelMatrixCollider = glm::translate(modelMatrixCollider, obbColliderBase->getCenter());
 		float scaleX = glm::length(glm::vec3(modelMatrixCollider[0]));
 		float scaleY = glm::length(glm::vec3(modelMatrixCollider[1]));
 		float scaleZ = glm::length(glm::vec3(modelMatrixCollider[2]));
+
+		modelMatrixCollider[0] = glm::vec4(glm::normalize(glm::vec3(modelMatrixCollider[0])), 0.0f);
+		modelMatrixCollider[1] = glm::vec4(glm::normalize(glm::vec3(modelMatrixCollider[1])), 0.0f);
+		modelMatrixCollider[2] = glm::vec4(glm::normalize(glm::vec3(modelMatrixCollider[2])), 0.0f);
+
+		// Set the orientation of collider before doing the scale
+		glm::quat ori = glm::quat_cast(modelMatrixCollider);
+		
+		modelMatrixCollider = glm::scale(modelMatrixCollider, glm::vec3(scaleX, scaleY, scaleZ));
+		modelMatrixCollider = glm::translate(modelMatrixCollider, obbColliderBase->getCenter());
 		
 		this->halfways = obbColliderBase->getHalfways() * glm::vec3(scaleX, scaleY, scaleZ);
 		this->center = modelMatrixCollider[3];
@@ -287,7 +296,8 @@ public:
 			matrixCollider = glm::translate(matrixCollider, this->center);
 			matrixCollider = matrixCollider * glm::mat4(orientation);
 			matrixCollider = glm::scale(matrixCollider, this->halfways * 2.0f);
-			this->getRenderableCollider()->render(matrixCollider);
+			this->getRenderableCollider()->getModelMatrix() = matrixCollider;
+			this->getRenderableCollider()->render();
 		}
 	}
 

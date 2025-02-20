@@ -64,7 +64,6 @@ public:
 
 	void setScale(glm::vec3 scale) {
 		this->scale = scale;
-		generatModelMatrix();
 	}
 
 	void setOrientation(glm::vec3 orientation) {
@@ -88,13 +87,12 @@ protected:
 	glm::mat4 modelMatrix = glm::mat4(1.0);
 
 	void generatModelMatrix(){
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), this->scale);
 		glm::mat4 translate = glm::translate(glm::mat4(1.0f), this->position);
 		glm::quat oX = glm::angleAxis<float>(glm::radians(orientation.x), glm::vec3(1.0, 0.0, 0.0));
 		glm::quat oY = glm::angleAxis<float>(glm::radians(orientation.y), glm::vec3(0.0, 1.0, 0.0));
 		glm::quat oZ = glm::angleAxis<float>(glm::radians(orientation.z), glm::vec3(0.0, 0.0, 1.0));
 		glm::quat ori = oZ * oY * oX;
-		modelMatrix = translate * glm::mat4_cast(ori) * scale;
+		modelMatrix = translate * glm::mat4_cast(ori);
 	}
 };
 

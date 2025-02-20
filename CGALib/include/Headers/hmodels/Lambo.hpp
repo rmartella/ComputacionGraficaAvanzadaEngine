@@ -31,7 +31,7 @@
 
 class DLL_PUBLIC Lambo : public HierarchicalModel {
 public:
-    Lambo(Shader* shader_ptr): HierarchicalModel(shader_ptr){
+    Lambo(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX): HierarchicalModel(shader_ptr, terrain, typeCollider) {
         modelLambo = std::make_shared<Model>(shader_ptr, "../models/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_chasis.obj");
         modelLamboLeftDor = std::make_shared<Model>(shader_ptr, "../models/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_left_dor.obj");
         modelLamboRightDor = std::make_shared<Model>(shader_ptr, "../models/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_right_dor.obj");
@@ -40,25 +40,38 @@ public:
         modelLamboRearLeftWheel = std::make_shared<Model>(shader_ptr, "../models/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_rear_left_wheel.obj");
         modelLamboRearRightWheel = std::make_shared<Model>(shader_ptr, "../models/Lamborginhi_Aventador_OBJ/Lamborghini_Aventador_rear_right_wheel.obj");
         joints.resize(1);
+        initCollider = modelLambo->getInitCollider();
+        collider = modelLambo->getCollider();
     }
 
-    void render(glm::mat4 parentTrans = glm::mat4(1.0f)) {
-        glm::mat4 modelMatrixLamboBlend = glm::mat4(parentTrans * modelMatrix);
-        if(terrain != nullptr)
-		    modelMatrixLamboBlend[3][1] = terrain->getHeightTerrain(modelMatrixLamboBlend[3][0], modelMatrixLamboBlend[3][2]);
-        modelMatrixLamboBlend = glm::scale(modelMatrixLamboBlend, glm::vec3(1.3, 1.3, 1.3));
-        modelLambo->render(modelMatrixLamboBlend);
+    void render() {
+        animate(modelMatrix);
+        glm::mat4 modelMatrixLamboBlend = glm::scale(modelMatrix, scale);
+        modelLambo->getModelMatrix() = modelMatrixLamboBlend;
+        modelLambo->render();
         glActiveTexture(GL_TEXTURE0);
         glm::mat4 modelMatrixLamboLeftDor = glm::mat4(modelMatrixLamboBlend);
         modelMatrixLamboLeftDor = glm::translate(modelMatrixLamboLeftDor, glm::vec3(1.08676, 0.707316, 0.982601));
         modelMatrixLamboLeftDor = glm::rotate(modelMatrixLamboLeftDor, glm::radians(joints[0]), glm::vec3(1.0, 0, 0));
         modelMatrixLamboLeftDor = glm::translate(modelMatrixLamboLeftDor, glm::vec3(-1.08676, -0.707316, -0.982601));
-        modelLamboLeftDor->render(modelMatrixLamboLeftDor);
-        modelLamboRightDor->render(modelMatrixLamboBlend);
-        modelLamboFrontLeftWheel->render(modelMatrixLamboBlend);
-        modelLamboFrontRightWheel->render(modelMatrixLamboBlend);
-        modelLamboRearLeftWheel->render(modelMatrixLamboBlend);
-        modelLamboRearRightWheel->render(modelMatrixLamboBlend);
+        modelLamboLeftDor->getModelMatrix() = modelMatrixLamboLeftDor;
+        modelLamboLeftDor->render();
+        modelLamboRightDor->getModelMatrix() = modelMatrixLamboBlend;
+        modelLamboRightDor->render();
+        modelLamboFrontLeftWheel->getModelMatrix() = modelMatrixLamboBlend;
+        modelLamboFrontLeftWheel->render();
+        modelLamboFrontRightWheel->getModelMatrix() = modelMatrixLamboBlend;
+        modelLamboFrontRightWheel->render();
+        modelLamboRearLeftWheel->getModelMatrix() = modelMatrixLamboBlend;
+        modelLamboRearLeftWheel->render();
+        modelLamboRearRightWheel->getModelMatrix() = modelMatrixLamboBlend;
+        modelLamboRearRightWheel->render();
+        updateCollider();
+    }
+
+    void updateCollider() {
+        glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+        collider->updateLogicCollider(initCollider, finalModelMatrix);
     }
 
 private:

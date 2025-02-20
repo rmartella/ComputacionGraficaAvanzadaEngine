@@ -1,15 +1,14 @@
 #include <assimp/postprocess.h>
 #include "Headers/Model.hpp"
-#include "Headers/BaseTerrain.hpp"
 #include "Headers/TimeManager.h"
 #include "Headers/assimp_glm_helpers.hpp"
 
 Model::Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain, TYPE_COLLIDER typeCollider): 
-	ModelBase(shader_ptr, terrain), ObjectCollider(typeCollider){
+	ModelBase(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {
 	this->loadModel(path);
 }
 
-void Model::render(glm::mat4 parentTrans) {
+void Model::render() {
 	GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
 	glGetIntegerv(GL_POLYGON_MODE, polygonMode);
 	if(wiredMode)
@@ -18,10 +17,9 @@ void Model::render(glm::mat4 parentTrans) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	float runningTime = TimeManager::Instance().GetRunningTime();
 	shader_ptr->turnOn();
-	glm::mat4 finalMatrix = parentTrans * modelMatrix;
-	if(terrain != nullptr)
-		modelMatrix[3][1] = terrain->getHeightTerrain(finalMatrix[3][0], finalMatrix[3][2]);
-    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(this->m_GlobalInverseTransform * parentTrans * modelMatrix));
+	TerrainAnimator::animate(modelMatrix);
+	glm::mat4 finalModelMatrix = glm::scale(glm::mat4(modelMatrix), scale);
+    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(finalModelMatrix));
 	for (GLuint i = 0; i < this->meshes.size(); i++) {
 		this->meshes[i]->render(runningTime, bones, this->m_GlobalInverseTransform);
 		glActiveTexture(GL_TEXTURE0);
@@ -182,13 +180,14 @@ void Model::createCollider() {
 }
 
 void Model::updateCollider(){
-	/*if(bones.size() > 0){
+	if(bones.size() > 0){
 		glm::vec3 mins = glm::vec3(FLT_MAX);
 		glm::vec3 maxs = glm::vec3(-FLT_MAX);
 		this->updateColliderFromBones(rootNode, mins, maxs, glm::mat4(1.0f));
 		this->initCollider->updateCollider(mins, maxs);
-	}*/
-	collider->updateLogicCollider(initCollider, this->m_GlobalInverseTransform * modelMatrix);
+	}
+	glm::mat4 finalModelMatrix = modelMatrix * glm::scale(glm::mat4(1.0), scale);
+	collider->updateLogicCollider(initCollider, finalModelMatrix);
 }
 
 void Model::updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform){

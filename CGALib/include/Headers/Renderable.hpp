@@ -29,14 +29,16 @@
 #include "Shader.h"
 #include <glm/glm.hpp>
 
-class DLL_PUBLIC Renderable {
+#include "AbstractModel.hpp"
+
+class DLL_PUBLIC Renderable: public AbstractModel {
 
 public:
   Renderable() = default;
 	Renderable(Shader * shader_ptr) : shader_ptr(shader_ptr) {};
 	~Renderable() = default;
 
-	void virtual render(glm::mat4 parentTrans = glm::mat4(1.0f)) = 0;
+	void virtual render() = 0;
 
 	void enableWireMode() {
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

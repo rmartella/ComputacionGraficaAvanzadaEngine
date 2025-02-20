@@ -49,7 +49,7 @@ public:
   };
 	BlendMapTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap, 
     std::map<TEXTURE_BLENDMAP_TERRAIN, std::string> blendMapTextures);
-  void render(glm::mat4 parentTrans = glm::mat4(1.0f)) override;
+  void render() override;
 
 private:
   std::shared_ptr<Texture2D> textureR;

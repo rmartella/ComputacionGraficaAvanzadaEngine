@@ -80,9 +80,9 @@ std::shared_ptr<Model> cowboyModelAnimate;
 std::shared_ptr<Model> guardianModelAnimate;
 
 std::shared_ptr<Eclipse> eclipse;
-std::shared_ptr<DarthVader> darthVader;
 std::shared_ptr<Lambo> lambo;
 std::shared_ptr<Heli> heli;
+std::shared_ptr<DarthVader> darthVader;
 
 std::shared_ptr<KeyFrameAnimator> darthAnimation;
 std::shared_ptr<KeyFrameAnimator> darthAnimation2;
@@ -95,6 +95,12 @@ GLFWManager glfwManager;
 
 double deltaTime;
 double currTime, lastTime;
+
+// Jump variables
+bool isJump = false;
+float GRAVITY = 1.81;
+double tmv = 0;
+double startTimeJump = 0;
 
 // Se definen todos las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen);
@@ -173,17 +179,31 @@ void darth_controller(int modelSelected){
 }
 
 void mayow_controller(int modelSelected){
+	mayowModelAnimate->setAnimationIndex(1);
 	if(modelSelected != 2)
 		return;
 	glm::mat4 modelMatrixMayow = mayowModelAnimate->getModelMatrix();
-	if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_LEFT) == GLFW_PRESS)
+	if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_LEFT) == GLFW_PRESS){
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, 0.02f, glm::vec3(0, 1, 0));
-	else if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_RIGHT) == GLFW_PRESS)
+		mayowModelAnimate->setAnimationIndex(0);
+	}
+	else if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_RIGHT) == GLFW_PRESS){
 		modelMatrixMayow = glm::rotate(modelMatrixMayow, -0.02f, glm::vec3(0, 1, 0));
-	if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_UP) == GLFW_PRESS)
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.2));
-	else if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_DOWN) == GLFW_PRESS)
-		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.2));
+		mayowModelAnimate->setAnimationIndex(0);
+	}
+	if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_UP) == GLFW_PRESS){
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, 0.02));
+		mayowModelAnimate->setAnimationIndex(0);
+	}
+	else if (GLFWManager::inputManager->getStatusKey(GLFW_KEY_DOWN) == GLFW_PRESS){
+		modelMatrixMayow = glm::translate(modelMatrixMayow, glm::vec3(0.0, 0.0, -0.02));
+		mayowModelAnimate->setAnimationIndex(0);
+	}
+
+	if(GLFWManager::inputManager->getStatusKey(GLFW_KEY_SPACE) == GLFW_PRESS){
+		mayowModelAnimate->startJump();
+	}
+
 	mayowModelAnimate->getModelMatrix() = modelMatrixMayow;
 	GLFWManager::inputManager->getCamera()->updateCamera();
 }
@@ -216,16 +236,18 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	terrain->setScaleUVTerrain(glm::vec2(35.0f));
 	terrain->setScale(glm::vec3(0.78125));
 
-	esfera1 = std::make_shared<Sphere>(&shaderTexture, 20, 20);
-	esfera2 = std::make_shared<Sphere>(&shaderTexture, 20, 20, 0.06);
-
-	box1 = std::make_shared<Box>(&shaderTexture);
-
 	boxCollider = std::make_shared<Box>(&shaderTexture);
 	boxCollider->enableWireMode();
 
 	sphereCollider = std::make_shared<Sphere>(&shaderTexture, 20, 20);
 	sphereCollider->enableWireMode();
+	
+	esfera1 = std::make_shared<Sphere>(&shaderTexture, 5, 5, 0.5, terrain.get());
+	esfera1->getCollider()->setRenderableCollider(sphereCollider.get());
+	
+	esfera2 = std::make_shared<Sphere>(&shaderTexture, 20, 20, 0.06);
+
+	box1 = std::make_shared<Box>(&shaderTexture);
 
 	textureLanding = std::make_shared<Texture2D>("../Textures/landingPad.jpg", true);
 
@@ -239,31 +261,36 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	}, 20);
 
 	modelRock = std::make_shared<Model>(&shaderMulLighting, "../models/rock/rock.obj", terrain.get(), SPHERE);
-	modelRock->setPosition(glm::vec3(4.0, 2.0, -2.0));
+	modelRock->setPosition(glm::vec3(-3.0, 0.0, 2.0));
 	modelRock->getCollider()->setRenderableCollider(sphereCollider.get());
 
 	modelAircraft = std::make_shared<Model>(&shaderMulLighting, "../models/Aircraft_obj/E 45 Aircraft_obj.obj", terrain.get(), BOX);
 	modelAircraft->setPosition(glm::vec3(10.0, 2.0, -17.5));
+	modelAircraft->setOffsetHeight(3.0f);
 	modelAircraft->getCollider()->setRenderableCollider(boxCollider.get());
 
 	eclipse = std::make_shared<Eclipse>(&shaderMulLighting, terrain.get());
+	eclipse->setScale(glm::vec3(0.5));
+	eclipse->setOrientation(glm::vec3(0, 180.0f, 0.0));
+	eclipse->setPosition(glm::vec3(27.5, 0, 30.0));
+	eclipse->getCollider()->setRenderableCollider(boxCollider.get());
 
-	lambo = std::make_shared<Lambo>(&shaderMulLighting);
+	lambo = std::make_shared<Lambo>(&shaderMulLighting, terrain.get());
 	lambo->setPosition(glm::vec3(23.0, 0.0, 0.0));
+	lambo->getCollider()->setRenderableCollider(boxCollider.get());
 
 	heli = std::make_shared<Heli>(&shaderMulLighting);
 	heli->setPosition(glm::vec3(5.0, 10.0, -5.0));
 
 	darthVader = std::make_shared<DarthVader>(&shaderMulLighting, terrain.get());
+	darthVader->getCollider()->setRenderableCollider(boxCollider.get());
 	darthAnimation = std::make_shared<KeyFrameAnimator>("../animations/darth_1.txt", darthVader.get());
 	darthAnimation2 = std::make_shared<KeyFrameAnimator>("../animations/darth_2.txt", darthVader.get());
 
 	mayowModelAnimate = std::make_shared<Model>(&shaderMulLighting, "../models/mayow/personaje2.fbx", terrain.get());
-	mayowModelAnimate->setAnimationIndex(1);
-	//mayowModelAnimate->setPosition(glm::vec3(13.0f, 0.05f, -5.0f));
-	//mayowModelAnimate->setScale(glm::vec3(0.021));
-	//mayowModelAnimate->setScale(glm::vec3(0.5));
-	//mayowModelAnimate->setOrientation(glm::vec3(0, -120.0, 0));
+	mayowModelAnimate->setPosition(glm::vec3(13.0f, 0.05f, -5.0f));
+	mayowModelAnimate->setScale(glm::vec3(0.021));
+	mayowModelAnimate->setOrientation(glm::vec3(0, -90.0, 0));
 	mayowModelAnimate->getCollider()->setRenderableCollider(boxCollider.get());
 
 	cyborgModelAnimate = std::make_shared<Model>(&shaderMulLighting, "../models/cyborg/cyborg.fbx", terrain.get());
@@ -312,39 +339,38 @@ void renderSolidScene(){
 
 	textureLanding->bind(GL_TEXTURE0);
 	esfera1->setPosition(glm::vec3(-2.0, 2.0, -2.0));
-	//esfera1->render();
+	esfera1->render();
 
 	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
 	//box1->render();
 
-	//modelRock->render();
+	modelRock->render();
 
-	//modelAircraft->render();
+	modelAircraft->render();
 
-	glm::mat4 modelMatrixEclipse = glm::translate(glm::mat4(1.0f), glm::vec3(27.5, 0, 30.0));
-	modelMatrixEclipse = glm::rotate(modelMatrixEclipse, glm::radians(180.0f), glm::vec3(0, 1, 0));
-	//eclipse->render(modelMatrixEclipse);
+	eclipse->render();
 	sm_eclipse(eclipse);
 
-	//lambo->render();
+	lambo->render();
 	sm_lambo(lambo);
 
-	//heli->render();
+	heli->render();
 	sm_heli(heli);
 
 	darthAnimation->animate();
-	//darthVader->render();
+	darthVader->setScale(glm::vec3(0.5));
+	darthVader->render();
 
 	darthAnimation2->animate();
-	//darthVader->render();
+	darthVader->render();
 
-	mayowModelAnimate->render(glm::scale(glm::mat4(1.0f), glm::vec3(0.021)));
+	mayowModelAnimate->render();
 
-	//cyborgModelAnimate->render();
+	cyborgModelAnimate->render();
 	
-	//cowboyModelAnimate->render();
+	cowboyModelAnimate->render();
 
-	//guardianModelAnimate->render();
+	guardianModelAnimate->render();
 
 	glm::mat4 boneMatrix;
 	bool nodeFound = false;
@@ -382,7 +408,7 @@ void applicationLoop() {
 	glm::vec3 lightPos = glm::vec3(10.0, 10.0, -10.0);
 
 	std::vector<std::function<void(int)>> callbacks = {
-        darth_controller, mayow_controller
+        /*darth_controller,*/ mayow_controller
     };
 
 	while (psi) {

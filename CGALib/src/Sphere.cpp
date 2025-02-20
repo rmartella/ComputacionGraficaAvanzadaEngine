@@ -1,6 +1,7 @@
 #include "Headers/Sphere.hpp"
 
-Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio) : SimpleModel(shader_ptr), ObjectCollider(SPHERE) {
+Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio, BaseTerrain *terrain) : 
+	SimpleModel(shader_ptr), ObjectCollider(SPHERE) , TerrainAnimator(terrain) {
 	std::vector<GLuint> index;
 	std::vector<Vertex> vertexArray;
 	vertexArray.resize(((slices + 1) * (stacks + 1)));
@@ -33,6 +34,13 @@ Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio) : Simple
 	this->init(vertexArray, index);
 	initCollider = new SBBCollider(glm::vec3(0), ratio);
 	collider = new SBBCollider(glm::vec3(0), ratio);
+}
+
+void Sphere::render() {
+	animate(modelMatrix);
+	SimpleModel::render();
+	glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+    collider->updateLogicCollider(initCollider, finalModelMatrix);
 }
 
 void Sphere::updateCollider() {

@@ -25,14 +25,19 @@
 #endif
 
 #include "ModelBase.hpp"
+#include "TerrainAnimate.hpp"
 
-class DLL_PUBLIC HierarchicalModel : public ModelBase {
+class DLL_PUBLIC HierarchicalModel : public ModelBase, public ObjectCollider, public TerrainAnimator {
 public:
-	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr) : ModelBase(shader_ptr, terrain){}
-  std::vector<float>& getJoints() { return joints; }
+	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX) : ModelBase(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {}
+    ~HierarchicalModel(){
+        initCollider = nullptr;
+        collider = nullptr;
+    }
+    std::vector<float>& getJoints() { return joints; }
 
 protected:
-  std::vector<float> joints;
+    std::vector<float> joints;
 };
 
 

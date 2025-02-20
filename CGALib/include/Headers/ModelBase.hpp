@@ -24,16 +24,11 @@
   #endif
 #endif
 
-#include "AbstractModel.hpp"
 #include "Renderable.hpp"
 #include "Colliders.hpp"
 
-class BaseTerrain;
-
-class DLL_PUBLIC ModelBase : public AbstractModel, public Renderable {
+class DLL_PUBLIC ModelBase : public Renderable {
 public:
-	ModelBase(Shader* shader_ptr, BaseTerrain* terrain = nullptr) : Renderable(shader_ptr), terrain(terrain) {}
-	virtual void render(glm::mat4 parentTrans = glm::mat4(1.0f)) = 0;
-protected:
-    BaseTerrain* terrain;
+	ModelBase(Shader* shader_ptr) : Renderable(shader_ptr) {}
+	virtual void render() = 0;
 };

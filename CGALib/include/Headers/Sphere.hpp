@@ -30,11 +30,14 @@
 #include <cmath>
 #include "SimpleModel.hpp"
 #include "ObjectCollider.hpp"
+#include "TerrainAnimate.hpp"
 
-class DLL_PUBLIC Sphere : public SimpleModel, protected ObjectCollider
+class DLL_PUBLIC Sphere : public SimpleModel, public ObjectCollider, public TerrainAnimator
 {
 public:
-	Sphere(Shader* shader_ptr, int slices, int stacks, float ratio = 0.5);
+	Sphere(Shader* shader_ptr, int slices, int stacks, 
+        float ratio = 0.5, BaseTerrain *terrain = nullptr);
+    void render() override;
 private:
   void updateCollider() override;
 };

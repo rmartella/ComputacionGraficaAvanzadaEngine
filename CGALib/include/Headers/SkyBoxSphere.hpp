@@ -36,7 +36,7 @@ public:
   SkyBoxSphere(Shader* shader_ptr, const std::vector<std::pair<GLenum, std::string>>& cubeFaces, float ratio = 0.5)
   : Sphere(shader_ptr, 20, 20, ratio), TextureCube(cubeFaces) {}
 
-  void render(glm::mat4 parentTrans = glm::mat4(1.0f));
+  void render();
 };
 
 #endif // SKYBOXSPHERE_H

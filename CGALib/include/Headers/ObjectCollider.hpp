@@ -37,6 +37,7 @@ public:
 	}
 
 	Collider* getCollider() { return collider; }
+  Collider* getInitCollider() { return initCollider; }
 
 protected:
 	TYPE_COLLIDER typeCollider;

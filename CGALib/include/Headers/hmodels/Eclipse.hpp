@@ -30,32 +30,42 @@
 
 class DLL_PUBLIC Eclipse : public HierarchicalModel {
 public:
-    Eclipse(Shader* shader_ptr, BaseTerrain* terrain = nullptr): HierarchicalModel(shader_ptr, terrain){
+    Eclipse(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX): HierarchicalModel(shader_ptr, terrain, typeCollider){
         modelEclipseChasis = std::make_shared<Model>(shader_ptr, "../models/Eclipse/2003eclipse_chasis.obj");
         modelEclipseRearWheels = std::make_shared<Model>(shader_ptr, "../models/Eclipse/2003eclipse_rear_wheels.obj");
         modelEclipseFrontalWheels = std::make_shared<Model>(shader_ptr, "../models/Eclipse/2003eclipse_frontal_wheels.obj");
         joints.resize(2);
+        initCollider = modelEclipseChasis->getInitCollider();
+        collider = modelEclipseChasis->getCollider();
     }
 
-    void render(glm::mat4 parentTrans = glm::mat4(1.0f)) {
-        glm::mat4 modelMatrixEclipseChasis = glm::mat4(parentTrans * modelMatrix);
-        if(terrain != nullptr)
-		    modelMatrixEclipseChasis[3][1] = terrain->getHeightTerrain(modelMatrixEclipseChasis[3][0], modelMatrixEclipseChasis[3][2]);
-        modelMatrixEclipseChasis = glm::scale(modelMatrixEclipseChasis, glm::vec3(0.5, 0.5, 0.5));
-        modelEclipseChasis->render(modelMatrixEclipseChasis);
+    void render() {
+        animate(modelMatrix);
+        glm::mat4 modelMatrixEclipseChasis = glm::scale(modelMatrix, scale);
+        modelEclipseChasis->getModelMatrix() = modelMatrixEclipseChasis;
+        modelEclipseChasis->render();
 
         glm::mat4 modelMatrixFrontalWheels = glm::mat4(modelMatrixEclipseChasis);
         modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, 1.05813, 4.11483 ));
         modelMatrixFrontalWheels = glm::rotate(modelMatrixFrontalWheels, joints[1], glm::vec3(0, 1, 0));
         modelMatrixFrontalWheels = glm::rotate(modelMatrixFrontalWheels, joints[0], glm::vec3(1, 0, 0));
         modelMatrixFrontalWheels = glm::translate(modelMatrixFrontalWheels, glm::vec3(0.0, -1.05813, -4.11483));
-        modelEclipseFrontalWheels->render(modelMatrixFrontalWheels);
+        modelEclipseFrontalWheels->getModelMatrix() = modelMatrixFrontalWheels;
+        modelEclipseFrontalWheels->render();
 
         glm::mat4 modelMatrixRearWheels = glm::mat4(modelMatrixEclipseChasis);
         modelMatrixRearWheels = glm::translate(modelMatrixRearWheels, glm::vec3(0.0, 1.05813, -4.35157 ));
         modelMatrixRearWheels = glm::rotate(modelMatrixRearWheels, joints[0], glm::vec3(1, 0, 0));
         modelMatrixRearWheels = glm::translate(modelMatrixRearWheels, glm::vec3(0.0, -1.05813, 4.35157));
-        modelEclipseRearWheels->render(modelMatrixRearWheels);
+        modelEclipseRearWheels->getModelMatrix() = modelMatrixRearWheels;
+        modelEclipseRearWheels->render();
+
+        this->updateCollider();
+    }
+
+    void updateCollider() {
+        glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
+        collider->updateLogicCollider(initCollider, finalModelMatrix);
     }
 
 private:

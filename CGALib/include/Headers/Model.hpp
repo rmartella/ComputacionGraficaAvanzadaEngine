@@ -34,12 +34,14 @@
 #include "ModelBase.hpp"
 #include "ObjectCollider.hpp"
 #include "Mesh.hpp"
+#include "BaseTerrain.hpp"
+#include "TerrainAnimate.hpp"
 
-class DLL_PUBLIC Model : public ModelBase, protected ObjectCollider {
+class DLL_PUBLIC Model : public ModelBase, public ObjectCollider, public TerrainAnimator {
 public:
 	Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX);
 	~Model() = default;
-	void render(glm::mat4 parentTrans = glm::mat4(1.0f));
+	void render();
 	void readHierarchyData(AssimpNodeData& dest, const aiNode* src);
 	void readMissingBones(const aiAnimation* animation);
 	void getFinalBoneMatrix(std::string nodeNameToFind, AssimpNodeData& node, glm::mat4& nodeFondTransform, bool& nodeFound, glm::mat4 parentTansform);
@@ -53,8 +55,6 @@ public:
 	AssimpNodeData& getRootNode(){
 		return rootNode;
 	}
-
-	Collider* getCollider() { return collider; }
 
 protected:
 	void loadModel(const std::string & path);

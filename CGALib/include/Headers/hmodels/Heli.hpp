@@ -38,17 +38,22 @@ public:
         joints.resize(1);
     }
 
-    void render(glm::mat4 parentTrans = glm::mat4(1.0f)) {
-        glm::mat4 modelMatrixHeliChasis = glm::mat4(parentTrans * modelMatrix);
-        if(terrain != nullptr)
-		      modelMatrixHeliChasis[3][1] = terrain->getHeightTerrain(modelMatrixHeliChasis[3][0], modelMatrixHeliChasis[3][2]);
-        modelHeliChasis->render(modelMatrixHeliChasis);
+    void render() {
+        animate(modelMatrix);
+        glm::mat4 modelMatrixHeliChasis = glm::scale(modelMatrix, scale);
+        modelHeliChasis->getModelMatrix() = modelMatrixHeliChasis;
+        modelHeliChasis->render();
 
         glm::mat4 modelMatrixHeliHeli = glm::mat4(modelMatrixHeliChasis);
         modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, -0.249548));
         modelMatrixHeliHeli = glm::rotate(modelMatrixHeliHeli, joints[0], glm::vec3(0, 1, 0));
         modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, 0.249548));
-        modelHeliHeli->render(modelMatrixHeliHeli);
+        modelHeliHeli->getModelMatrix() = modelMatrixHeliHeli;
+        modelHeliHeli->render();
+    }
+
+    void updateCollider() {
+        collider->updateLogicCollider(initCollider, modelMatrix);
     }
 
 private:

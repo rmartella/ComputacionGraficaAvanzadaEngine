@@ -34,7 +34,7 @@ public:
 	SimpleModel(Shader* shader_ptr) : ModelBase(shader_ptr) {};
 	~SimpleModel() = default;
 
-	void render(glm::mat4 parentTrans = glm::mat4(1.0f)) override {
+	void render() override {
     GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
     glGetIntegerv(GL_POLYGON_MODE, polygonMode);
     if(wiredMode)
@@ -42,7 +42,8 @@ public:
     else
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     shader_ptr->turnOn();
-    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(parentTrans * modelMatrix));
+    glm::mat4 finalModelMatrix = modelMatrix * glm::scale(glm::mat4(1.0), scale);
+    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(finalModelMatrix));
 		this->shader_ptr->setVectorFloat4("ourColor", glm::value_ptr(color));
     Drawable::draw();
     shader_ptr->turnOff();
