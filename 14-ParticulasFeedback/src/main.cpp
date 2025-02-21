@@ -418,8 +418,8 @@ void renderSolidScene(){
 	mayowModelAnimate->getFinalBoneMatrix("LHandEX", mayowModelAnimate->getRootNode(), boneMatrix, nodeFound, glm::mat4(1.0));
 	if(nodeFound){
 		textureLanding->bind(GL_TEXTURE0);
-		esfera2->setPosition(mayowModelAnimate->getModelMatrix() *  boneMatrix[3]);
-		//esfera2->render();
+		esfera2->setPosition(glm::scale(mayowModelAnimate->getModelMatrix(), mayowModelAnimate->getScale()) * boneMatrix[3]);
+		esfera2->render();
 	}
 
 	terrain->render();
