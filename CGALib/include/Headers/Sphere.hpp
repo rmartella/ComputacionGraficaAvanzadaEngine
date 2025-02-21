@@ -30,7 +30,7 @@
 #include <cmath>
 #include "SimpleModel.hpp"
 #include "ObjectCollider.hpp"
-#include "TerrainAnimate.hpp"
+#include "TerrainAnimator.hpp"
 
 class DLL_PUBLIC Sphere : public SimpleModel, public ObjectCollider, public TerrainAnimator
 {
@@ -38,8 +38,6 @@ public:
 	Sphere(Shader* shader_ptr, int slices, int stacks, 
         float ratio = 0.5, BaseTerrain *terrain = nullptr);
     void render() override;
-private:
-  void updateCollider() override;
 };
 
 #endif // SPHERE_H

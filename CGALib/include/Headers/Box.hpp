@@ -28,13 +28,14 @@
 #endif
 
 #include "SimpleModel.hpp"
-#include "SimpleModelCollider.hpp"
+#include "ObjectCollider.hpp"
+#include "TerrainAnimator.hpp"
 
-class DLL_PUBLIC Box : public SimpleModelCollider
+class DLL_PUBLIC Box : public SimpleModel, public ObjectCollider, public TerrainAnimator
 {
 public:
-	Box(Shader* shader_ptr);
-  void updateCollider() override;
+	Box(Shader* shader_ptr, BaseTerrain *terrain = nullptr);
+    void render() override;
 };
 
 #endif // BOX_H

@@ -52,10 +52,6 @@ public:
         modelHeliHeli->render();
     }
 
-    void updateCollider() {
-        collider->updateLogicCollider(initCollider, modelMatrix);
-    }
-
 private:
     std::shared_ptr<Model> modelHeliChasis;
     std::shared_ptr<Model> modelHeliHeli;

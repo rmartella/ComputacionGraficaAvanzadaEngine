@@ -31,13 +31,13 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include "ModelBase.hpp"
+#include "Renderable.hpp"
 #include "ObjectCollider.hpp"
 #include "Mesh.hpp"
 #include "BaseTerrain.hpp"
-#include "TerrainAnimate.hpp"
+#include "TerrainAnimator.hpp"
 
-class DLL_PUBLIC Model : public ModelBase, public ObjectCollider, public TerrainAnimator {
+class DLL_PUBLIC Model : public Renderable, public ObjectCollider, public TerrainAnimator {
 public:
 	Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX);
 	~Model() = default;
@@ -71,7 +71,7 @@ private:
 	
 	void processNode(aiNode* node, const aiScene* scene);
 	void createCollider();
-	void updateCollider() override;
+	void updateCollider(glm::mat4 modelMatrix) override;
 	void updateColliderFromBones(AssimpNodeData& node, glm::vec3& mins, glm::vec3& maxs, glm::mat4 parentTansform);
 };
 

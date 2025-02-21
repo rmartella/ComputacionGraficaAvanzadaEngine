@@ -1,4 +1,3 @@
-#include "Headers/ModelBase.hpp"
 #include "Headers/ThirdPersonCamera.hpp"
 
 ThirdPersonCamera::ThirdPersonCamera(float distanceFromTarget){

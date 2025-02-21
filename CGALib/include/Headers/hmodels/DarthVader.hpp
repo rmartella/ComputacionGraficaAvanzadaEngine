@@ -26,7 +26,6 @@
   #endif
 #endif
 
-#include "Headers/ModelBase.hpp"
 #include "Headers/HierarchicalModel.hpp"
 
 class DLL_PUBLIC DarthVader : public HierarchicalModel
@@ -108,12 +107,7 @@ public:
         modelDartLegoRightLeg->render();
         // Se regresa el cull faces IMPORTANTE para la capa
         glEnable(GL_CULL_FACE);
-        this->updateCollider();
-    }
-
-    void updateCollider() {
-        glm::mat4 finalModelMatrix = glm::mat4(modelMatrix * glm::scale(glm::mat4(1.0f), glm::vec3(scale)));
-        collider->updateLogicCollider(initCollider, finalModelMatrix);
+        this->updateCollider(modelMatrixDartBody);
     }
 
 private:

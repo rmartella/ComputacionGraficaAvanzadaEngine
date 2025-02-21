@@ -34,8 +34,6 @@
   #endif
 #endif
 
-#include "AbstractModel.hpp"
-#include "Drawable.hpp"
 #include "SimpleModel.hpp"
 #include "Texture2D.hpp"
 
@@ -46,13 +44,13 @@ public:
 	float getHeightTerrain(float worldX, float worldZ);
 	glm::vec3 getNormalTerrain(float worldX, float worldZ);
 protected:
-  float yScale, yShift;
+  	float yScale, yShift;
 
 private:
 	float ** heights;
 	glm::vec3 ** normals;
-  Texture2D* textureHeightMap;
-  void init();
+ 	Texture2D* textureHeightMap;
+  	void init();
 	glm::vec3 computeNormal(int x, int z, unsigned char * data, int imageWidth, int imageHeight, int numeroCanales);
 	float getHeight(int x, int z, unsigned char * data, int imageWidth, int imageHeight, int numeroCanales);
 	float barryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos);

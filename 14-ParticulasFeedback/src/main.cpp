@@ -89,6 +89,22 @@ std::shared_ptr<KeyFrameAnimator> darthAnimation2;
 
 std::shared_ptr<BlendMapTerrain> terrain;
 
+std::shared_ptr<Model> modelLamp1;
+std::shared_ptr<Model> modelLamp2;
+std::shared_ptr<Model> modelLampPost2;
+
+// Lamps position
+std::vector<std::pair<glm::vec3, float>> lamp1 = {
+	{ glm::vec3(-7.03, 0, -19.14), -17.0 },
+	{ glm::vec3(24.41, 0, -34.57), -82.67 },
+	{ glm::vec3(-10.15, 0, -54.1), 23.70 }
+};
+
+std::vector<std::pair<glm::vec3, float>> lamp2 = {
+	{ glm::vec3(-36.52, 0, -23.24), 21.37 + 90 },
+	{ glm::vec3(-52.73, 0, -3.90), -65.0 + 90 }
+};
+
 LightManager lightManager;
 
 GLFWManager glfwManager;
@@ -216,7 +232,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	// Inicialización de los shaders
 	shader.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
@@ -234,7 +250,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	};
 	terrain = std::make_shared<BlendMapTerrain>(&shaderTerrain, 32.0f, -16.0f, "../Textures/heightmap.png", blendMapTextures);
 	terrain->setScaleUVTerrain(glm::vec2(35.0f));
-	terrain->setScale(glm::vec3(0.78125));
+	terrain->setScale(glm::vec3(0.78125, 0.1, 0.78125));
 
 	boxCollider = std::make_shared<Box>(&shaderTexture);
 	boxCollider->enableWireMode();
@@ -243,11 +259,14 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	sphereCollider->enableWireMode();
 	
 	esfera1 = std::make_shared<Sphere>(&shaderTexture, 5, 5, 0.5, terrain.get());
+	esfera1->setPosition(glm::vec3(-2.0, 2.0, -2.0));
 	esfera1->getCollider()->setRenderableCollider(sphereCollider.get());
 	
 	esfera2 = std::make_shared<Sphere>(&shaderTexture, 20, 20, 0.06);
 
-	box1 = std::make_shared<Box>(&shaderTexture);
+	box1 = std::make_shared<Box>(&shaderTexture, terrain.get());
+	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
+	box1->getCollider()->setRenderableCollider(boxCollider.get());
 
 	textureLanding = std::make_shared<Texture2D>("../Textures/landingPad.jpg", true);
 
@@ -308,22 +327,46 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	guardianModelAnimate->setScale(glm::vec3(0.04f));
 	guardianModelAnimate->getCollider()->setRenderableCollider(boxCollider.get());
 
+	modelLamp1 = std::make_shared<Model>(&shaderMulLighting, "../models/Street-Lamp-Black/objLamp.obj", terrain.get());
+	modelLamp1->setScale(glm::vec3(0.5));
+	modelLamp1->getCollider()->setRenderableCollider(boxCollider.get());
+	modelLamp2 = std::make_shared<Model>(&shaderMulLighting, "../models/Street_Light/Lamp.obj", terrain.get());
+	modelLampPost2 = std::make_shared<Model>(&shaderMulLighting, "../models/Street_Light/LampPost.obj", terrain.get());
+	modelLampPost2->getCollider()->setRenderableCollider(boxCollider.get());
+
 	std::shared_ptr<ThirdPersonCamera> camera = std::make_shared<ThirdPersonCamera>();
 	camera->setModelTarget(mayowModelAnimate.get());
 	camera->setDistanceFromTarget(7.0);
 	camera->setSensitivity(1.0);
 	GLFWManager::inputManager->setCamera(camera);
 
-
-	box1->getCollider()->setRenderableCollider(boxCollider.get());
-
 	lightManager.addDirectionalLight(
-		Light(glm::vec3(0.2), glm::vec3(0.5), glm::vec3(0.2)), 
+		Light(glm::vec3(0.05, 0.05, 0.05), glm::vec3(0.3, 0.3, 0.3), glm::vec3(0.4, 0.4, 0.4)), 
 		glm::vec3(-0.707106781, -0.707106781, 0.0));
 
-	lightManager.addPointLight(
-		Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)), 
-		glm::vec3(-7.03, 0, -19.14), 1.0, 0.009, 0.002);
+	for(int i = 0; i < lamp1.size(); i++){
+		glm::vec3 lampPosition = lamp1[i].first;
+		lampPosition.y = terrain->getHeightTerrain(lampPosition.x, lampPosition.z) + 10.35 * 0.5;
+		lightManager.addPointLight(
+			Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)), 
+			lampPosition, 1.0, 0.009, 0.002);
+	}
+
+	for(int i = 0; i < lamp2.size(); i++){
+		float lampOri = lamp2[i].second;
+		glm::vec3 lampPosition = lamp2[i].first;
+		glm::mat4 matrixAdjustLamp = glm::mat4(1.0);
+		matrixAdjustLamp = glm::translate(matrixAdjustLamp, lampPosition);
+		matrixAdjustLamp = glm::rotate(matrixAdjustLamp, glm::radians(lampOri), glm::vec3(0, 1, 0));
+		matrixAdjustLamp = glm::scale(matrixAdjustLamp, glm::vec3(1.0));
+		matrixAdjustLamp = glm::translate(matrixAdjustLamp, glm::vec3(0.75, 0.0, 0));
+		lampPosition.y = terrain->getHeightTerrain(lampPosition.x, lampPosition.z) + 5.0 * 1.0;
+		lampPosition = matrixAdjustLamp[3];
+		lightManager.addPointLight(
+			Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)), 
+			lampPosition, 1.0, 0.009, 0.002);
+	}
+
 }
 
 void destroy() {
@@ -338,11 +381,9 @@ void prepareDepthScene(){
 void renderSolidScene(){
 
 	textureLanding->bind(GL_TEXTURE0);
-	esfera1->setPosition(glm::vec3(-2.0, 2.0, -2.0));
 	esfera1->render();
 
-	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
-	//box1->render();
+	box1->render();
 
 	modelRock->render();
 
@@ -382,6 +423,21 @@ void renderSolidScene(){
 	}
 
 	terrain->render();
+
+	for(int i = 0; i < lamp1.size(); i++){
+		modelLamp1->setPosition(lamp1[i].first);
+		modelLamp1->setOrientation(glm::vec3(0, lamp1[i].second, 0));
+		modelLamp1->render();
+	}
+
+	for(int i = 0; i < lamp2.size(); i++){
+		modelLamp2->setPosition(lamp2[i].first);
+		modelLamp2->setOrientation(glm::vec3(0, lamp2[i].second, 0));
+		modelLamp2->render();
+		modelLampPost2->setPosition(lamp2[i].first);
+		modelLampPost2->setOrientation(glm::vec3(0, lamp2[i].second, 0));
+		modelLampPost2->render();
+	}
 
 	//esfera2->setPosition(glm::vec3(-8.0, 2.0, -2.0));
 	//esfera2->render();
@@ -454,6 +510,7 @@ void applicationLoop() {
 		 * Propiedades Luz direccional
 		 *******************************************/
 		shaderMulLighting.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
+		shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 
 		lightManager.applyLighting({&shaderMulLighting, &shaderTerrain});
 

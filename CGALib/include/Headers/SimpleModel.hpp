@@ -25,29 +25,29 @@
   #endif
 #endif
 
-#include "ModelBase.hpp"
+#include "Renderable.hpp"
 #include "Drawable.hpp"
 
-class DLL_PUBLIC SimpleModel : public ModelBase, protected Drawable {
+class DLL_PUBLIC SimpleModel : public Renderable, protected Drawable {
 
 public:
-	SimpleModel(Shader* shader_ptr) : ModelBase(shader_ptr) {};
+	SimpleModel(Shader* shader_ptr) : Renderable(shader_ptr) {};
 	~SimpleModel() = default;
 
 	void render() override {
-    GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
-    glGetIntegerv(GL_POLYGON_MODE, polygonMode);
-    if(wiredMode)
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    shader_ptr->turnOn();
-    glm::mat4 finalModelMatrix = modelMatrix * glm::scale(glm::mat4(1.0), scale);
-    this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(finalModelMatrix));
-		this->shader_ptr->setVectorFloat4("ourColor", glm::value_ptr(color));
-    Drawable::draw();
-    shader_ptr->turnOff();
-    glPolygonMode(GL_FRONT, polygonMode[0]);
-    glPolygonMode(GL_BACK, polygonMode[1]);
-  }
+        GLint polygonMode[2];  // Almacena los modos para GL_FRONT y GL_BACK
+        glGetIntegerv(GL_POLYGON_MODE, polygonMode);
+        if(wiredMode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        shader_ptr->turnOn();
+        glm::mat4 finalModelMatrix = modelMatrix * glm::scale(glm::mat4(1.0), scale);
+        this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(finalModelMatrix));
+        this->shader_ptr->setVectorFloat4("ourColor", glm::value_ptr(color));
+        Drawable::draw();
+        shader_ptr->turnOff();
+        glPolygonMode(GL_FRONT, polygonMode[0]);
+        glPolygonMode(GL_BACK, polygonMode[1]);
+    }
 };

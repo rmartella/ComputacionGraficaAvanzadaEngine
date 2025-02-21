@@ -24,12 +24,12 @@
   #endif
 #endif
 
-#include "ModelBase.hpp"
-#include "TerrainAnimate.hpp"
+#include "Renderable.hpp"
+#include "TerrainAnimator.hpp"
 
-class DLL_PUBLIC HierarchicalModel : public ModelBase, public ObjectCollider, public TerrainAnimator {
+class DLL_PUBLIC HierarchicalModel : public Renderable, public ObjectCollider, public TerrainAnimator {
 public:
-	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX) : ModelBase(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {}
+	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX) : Renderable(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {}
     ~HierarchicalModel(){
         initCollider = nullptr;
         collider = nullptr;

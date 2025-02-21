@@ -46,7 +46,7 @@ protected:
 private:
     float distanceFromTarget;
     float angleAroundTarget;
-    AbstractModel* modelTarget;
+    AbstractModel* modelTarget = nullptr;
 };
 
 #endif // THIRDPERSONCAMERA_H

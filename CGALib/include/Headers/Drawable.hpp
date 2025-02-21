@@ -67,20 +67,15 @@ public:
 	}
 
 	void draw() {
-		draw(0, totalIndex);
-	}
-
-	void draw(int indexInit, int indexSize) {
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_INT, (GLuint*)(indexInit * sizeof(GLuint)));
-		glBindVertexArray(0);
+		if(totalIndex > 0)
+			draw(0, totalIndex);
 	}
 	
 protected:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
-	size_t totalIndex;
+	size_t totalIndex = 0;
 
 	void init(std::vector<Vertex> vertexArray, std::vector<GLuint> index) {
 		this->totalIndex = index.size();
@@ -113,5 +108,11 @@ private:
 		glDeleteBuffers(1, &EBO);
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &VAO);
+	}
+
+	void draw(int indexInit, int indexSize) {
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_INT, (GLuint*)(indexInit * sizeof(GLuint)));
+		glBindVertexArray(0);
 	}
 };

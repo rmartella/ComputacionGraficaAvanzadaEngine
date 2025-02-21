@@ -39,10 +39,5 @@ Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio, BaseTerr
 void Sphere::render() {
 	animate(modelMatrix);
 	SimpleModel::render();
-	glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
-    collider->updateLogicCollider(initCollider, finalModelMatrix);
-}
-
-void Sphere::updateCollider() {
-	collider->updateLogicCollider(initCollider, modelMatrix);
+	ObjectCollider::updateCollider(glm::scale(modelMatrix, glm::vec3(scale)));
 }

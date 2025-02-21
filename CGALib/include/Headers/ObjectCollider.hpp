@@ -37,14 +37,16 @@ public:
 	}
 
 	Collider* getCollider() { return collider; }
-  Collider* getInitCollider() { return initCollider; }
+    Collider* getInitCollider() { return initCollider; }
 
 protected:
 	TYPE_COLLIDER typeCollider;
 	Collider* collider = nullptr;
-  Collider* initCollider = nullptr;
+    Collider* initCollider = nullptr;
 	
-  virtual void updateCollider() = 0;
+    virtual void updateCollider(glm::mat4 modelMatrix) {
+        collider->updateLogicCollider(initCollider, modelMatrix);
+    }
 };
 
 

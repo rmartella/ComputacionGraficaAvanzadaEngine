@@ -66,12 +66,7 @@ public:
         modelLamboRearLeftWheel->render();
         modelLamboRearRightWheel->getModelMatrix() = modelMatrixLamboBlend;
         modelLamboRearRightWheel->render();
-        updateCollider();
-    }
-
-    void updateCollider() {
-        glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
-        collider->updateLogicCollider(initCollider, finalModelMatrix);
+        this->updateCollider(modelMatrixLamboBlend);
     }
 
 private:

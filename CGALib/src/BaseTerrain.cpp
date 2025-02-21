@@ -146,8 +146,8 @@ float BaseTerrain::getHeightTerrain(float worldX, float worldZ){
 }
 
 glm::vec3 BaseTerrain::getNormalTerrain(float worldX, float worldZ){
-	float terrainX = worldX + textureHeightMap->getWidth() / 2.0f - position.x;
-	float terrainZ = worldZ + textureHeightMap->getHeight() / 2.0f - position.y;
+	float terrainX = (worldX - position.x) / scale[0] + textureHeightMap->getWidth() / 2.0f ;
+	float terrainZ = (worldZ - position.z) / scale[2] + textureHeightMap->getHeight() / 2.0f;
 	float gridSquareSizeX = 1.0f;
 	float gridSquareSizeZ = 1.0f;
 	int gridX = floor(terrainX / gridSquareSizeX);

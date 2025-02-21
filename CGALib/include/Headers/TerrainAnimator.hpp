@@ -34,12 +34,23 @@ class DLL_PUBLIC TerrainAnimator {
     public:
         TerrainAnimator(BaseTerrain* terrain = nullptr) : terrain(terrain) {}
         void animate(glm::mat4& modelMatrix) {
-            if(terrain != nullptr){
+            if(terrain != nullptr){              
+
                 modelMatrix[3][1] = -GRAVITY * tmv * tmv + 3.5 * tmv + terrain->getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]) + offsetHeight;
                 tmv = TimeManager::Instance().GetTime() - startTimeJump;
                 if(modelMatrix[3][1] < terrain->getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]) + offsetHeight){
                     isJump = false;
                     modelMatrix[3][1] = terrain->getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]) + offsetHeight;
+                }
+                if(alignTerrain){
+                    glm::vec3 ejey = glm::normalize(terrain->getNormalTerrain(modelMatrix[3][0], modelMatrix[3][2]));
+                    glm::vec3 ejex = glm::vec3(modelMatrix[0]);
+                    glm::vec3 ejez = glm::normalize(glm::cross(ejex, ejey));
+                    ejex = glm::normalize(glm::cross(ejey, ejez));
+
+                    modelMatrix[0] = glm::vec4(ejex, 0.0);
+                    modelMatrix[1] = glm::vec4(ejey, 0.0);
+                    modelMatrix[2] = glm::vec4(ejez, 0.0);
                 }
             }
         }
@@ -53,6 +64,7 @@ class DLL_PUBLIC TerrainAnimator {
         }
 
         void setOffsetHeight(float offsetHeight) { this->offsetHeight = offsetHeight; }
+        void enaDisAlignTerrain(bool alignTerrain) { this->alignTerrain =  alignTerrain; }
 
     protected:
         BaseTerrain* terrain;
@@ -62,7 +74,8 @@ class DLL_PUBLIC TerrainAnimator {
         float GRAVITY = 1.81;
         double tmv = 0;
         double startTimeJump = 0;
-        float offsetHeight;
+        float offsetHeight = 0.0;
+        bool alignTerrain = false;
 };
 
 #endif /* TERRAINANIMATE_H_ */

@@ -39,8 +39,30 @@ public:
         collider = modelEclipseChasis->getCollider();
     }
 
+    void animate(glm::mat4& modelMatrix) {
+        modelMatrix[3][1] = terrain->getHeightTerrain(modelMatrix[3][0], modelMatrix[3][2]);
+        glm::vec4 frontalLeftWheel = glm::translate(modelMatrix, glm::vec3(2.8, 1.05813, 4.11483))[3];
+		glm::vec4 frontalRightWheel = glm::translate(modelMatrix, glm::vec3(-2.8, 1.05813, 4.11483))[3];
+		glm::vec4 rearLeftWheel = glm::translate(modelMatrix, glm::vec3(2.8, 1.05813, -4.35157))[3];
+		glm::vec4 rearRightWheel = glm::translate(modelMatrix, glm::vec3(-2.8, 1.05813, -4.35157))[3];
+		frontalLeftWheel.y = terrain->getHeightTerrain(frontalLeftWheel.x, frontalLeftWheel.z);
+		frontalRightWheel.y = terrain->getHeightTerrain(frontalRightWheel.x, frontalRightWheel.z);
+		rearLeftWheel.y = terrain->getHeightTerrain(rearLeftWheel.x, rearLeftWheel.z);
+		rearRightWheel.y = terrain->getHeightTerrain(rearRightWheel.x, rearRightWheel.z);
+
+		glm::vec3 uVec = rearLeftWheel - frontalLeftWheel;
+    	glm::vec3 vVec = rearRightWheel - frontalLeftWheel;
+		glm::vec4 ejeyEclipse = glm::vec4(glm::normalize(glm::vec3(glm::cross(glm::vec3(uVec), glm::vec3(vVec)))), 0);
+		glm::vec4 ejexEclipse = modelMatrix[0];
+		glm::vec4 ejezEclipse = glm::vec4(glm::normalize(glm::vec3(glm::cross(glm::vec3(ejexEclipse), glm::vec3(ejeyEclipse)))), 0);
+		ejexEclipse = glm::vec4(glm::normalize(glm::vec3(glm::cross(glm::vec3(ejeyEclipse), glm::vec3(ejezEclipse)))), 0);
+		modelMatrix[0] = ejexEclipse;
+		modelMatrix[1] = ejeyEclipse;
+		modelMatrix[2] = ejezEclipse;
+    }
+
     void render() {
-        animate(modelMatrix);
+        this->animate(modelMatrix);
         glm::mat4 modelMatrixEclipseChasis = glm::scale(modelMatrix, scale);
         modelEclipseChasis->getModelMatrix() = modelMatrixEclipseChasis;
         modelEclipseChasis->render();
@@ -60,12 +82,7 @@ public:
         modelEclipseRearWheels->getModelMatrix() = modelMatrixRearWheels;
         modelEclipseRearWheels->render();
 
-        this->updateCollider();
-    }
-
-    void updateCollider() {
-        glm::mat4 finalModelMatrix = glm::scale(modelMatrix, glm::vec3(scale));
-        collider->updateLogicCollider(initCollider, finalModelMatrix);
+        this->updateCollider(modelMatrixEclipseChasis);
     }
 
 private:
