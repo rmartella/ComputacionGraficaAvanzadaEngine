@@ -1,5 +1,5 @@
 #include <GLFW/glfw3.h>
-#include "Headers/GLFWInputManager.hpp"
+#include "Headers/GLFWInputManager.h"
 
 void GLFWInputManager::keyPressed(int code, float deltaTime, int state) {
 	keysState[code] = state;

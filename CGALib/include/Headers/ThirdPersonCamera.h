@@ -1,5 +1,5 @@
-#ifndef SPHERE_H
-#define SPHERE_H
+#ifndef THIRDPERSONCAMERA_H
+#define THIRDPERSONCAMERA_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -26,18 +26,27 @@
   #endif
 #endif
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include "SimpleModel.hpp"
-#include "ObjectCollider.hpp"
-#include "TerrainAnimator.hpp"
+#include "Camera.h"
+#include "AbstractModel.h"
 
-class DLL_PUBLIC Sphere : public SimpleModel, public ObjectCollider, public TerrainAnimator
+class DLL_PUBLIC ThirdPersonCamera: public Camera
 {
 public:
-	Sphere(Shader* shader_ptr, int slices, int stacks, 
-        float ratio = 0.5, BaseTerrain *terrain = nullptr);
-    void render() override;
+    ThirdPersonCamera(float distanceFromTarget = 7.0);
+    void mouseMoveCamera(float xoffset, float yoffset, float dt);
+    void scrollMoveCamera(float soffset, float dt);
+    void setModelTarget(AbstractModel* modelTarget) { this->modelTarget = modelTarget; }
+    void setDistanceFromTarget(float distanceFromTarget) {
+		this->distanceFromTarget = distanceFromTarget;
+	}
+
+protected:
+    void updateCamera();
+    
+private:
+    float distanceFromTarget;
+    float angleAroundTarget;
+    AbstractModel* modelTarget = nullptr;
 };
 
-#endif // SPHERE_H
+#endif // THIRDPERSONCAMERA_H

@@ -36,7 +36,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "HierarchicalModel.hpp"
+#include "HierarchicalModel.h"
 
 class DLL_PUBLIC KeyFrameAnimator {
 

@@ -32,11 +32,11 @@
 #include <assimp/mesh.h>
 #include <assimp/material.h>
 
-#include "Drawable.hpp"
-#include "Bone.hpp"
-#include "Texture2D.hpp"
-#include "assimp_glm_helpers.hpp"
-#include "Shader.h"
+#include "Renderable.h"
+#include "Drawable.h"
+#include "Bone.h"
+#include "Texture2D.h"
+#include "assimp_glm_helpers.h"
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 
@@ -46,13 +46,14 @@ struct AssimpNodeData{
   std::vector<AssimpNodeData> children;
 };
 
-class DLL_PUBLIC Mesh : public Drawable {
+class DLL_PUBLIC Mesh : public Drawable, public Renderable {
 public:
 
   Mesh(const aiMesh *mesh, const aiMaterial *material, const std::string path,
     const aiScene* scene, const AssimpNodeData& rootNode, Shader *shader);
   ~Mesh();
   void render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::mat4 m_GlobalInverseTransform);
+  void render() override;
   bool getFinalBoneMatrix(std::string nodeName, glm::mat4& boneMatrix);
 
   void setAnimationIndex(int animationIndex){
@@ -76,7 +77,7 @@ private:
 
   std::string path;
   std::map<std::string, BoneInfo> boneInfoMap;
-  Shader* shader_ptr;
+  //Shader* shader_ptr;
 
   const AssimpNodeData& rootNode;
   aiAnimation** animations;

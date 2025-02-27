@@ -1,4 +1,4 @@
-#include "Headers/TextureCube.hpp"
+#include "Headers/TextureCube.h"
 #include <iostream>
 #include "Headers/stb_image.h"
 

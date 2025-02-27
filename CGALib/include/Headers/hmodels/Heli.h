@@ -26,8 +26,8 @@
   #endif
 #endif
 
-#include "Headers/Model.hpp"
-#include "Headers/HierarchicalModel.hpp"
+#include "Headers/Model.h"
+#include "Headers/HierarchicalModel.h"
 
 class DLL_PUBLIC Heli : public HierarchicalModel {
 public:
@@ -50,6 +50,13 @@ public:
         modelMatrixHeliHeli = glm::translate(modelMatrixHeliHeli, glm::vec3(0.0, 0.0, 0.249548));
         modelHeliHeli->getModelMatrix() = modelMatrixHeliHeli;
         modelHeliHeli->render();
+    }
+
+    void setShader(Shader* shader_ptr) override { 
+        Renderable::setShader(shader_ptr);
+        modelHeliChasis->setShader(shader_ptr);
+        modelHeliHeli->setShader(shader_ptr);
+        modelHeliHeliBack->setShader(shader_ptr);
     }
 
 private:

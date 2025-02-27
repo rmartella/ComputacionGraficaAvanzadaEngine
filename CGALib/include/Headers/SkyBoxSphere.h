@@ -1,5 +1,5 @@
-#ifndef THIRDPERSONCAMERA_H
-#define THIRDPERSONCAMERA_H
+#ifndef SKYBOXSPHERE_H
+#define SKYBOXSPHERE_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -26,27 +26,17 @@
   #endif
 #endif
 
-#include "Camera.hpp"
-#include "AbstractModel.hpp"
+#include "Sphere.h"
+#include "TextureCube.h"
 
-class DLL_PUBLIC ThirdPersonCamera: public Camera
+class DLL_PUBLIC SkyBoxSphere : private Sphere , private TextureCube
 {
 public:
-    ThirdPersonCamera(float distanceFromTarget = 7.0);
-    void mouseMoveCamera(float xoffset, float yoffset, float dt);
-    void scrollMoveCamera(float soffset, float dt);
-    void setModelTarget(AbstractModel* modelTarget) { this->modelTarget = modelTarget; }
-    void setDistanceFromTarget(float distanceFromTarget) {
-		this->distanceFromTarget = distanceFromTarget;
-	}
 
-protected:
-    void updateCamera();
-    
-private:
-    float distanceFromTarget;
-    float angleAroundTarget;
-    AbstractModel* modelTarget = nullptr;
+  SkyBoxSphere(Shader* shader_ptr, const std::vector<std::pair<GLenum, std::string>>& cubeFaces, float ratio = 0.5)
+  : Sphere(shader_ptr, 20, 20, ratio), TextureCube(cubeFaces) {}
+
+  void render();
 };
 
-#endif // THIRDPERSONCAMERA_H
+#endif // SKYBOXSPHERE_H

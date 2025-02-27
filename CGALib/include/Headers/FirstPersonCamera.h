@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef FIRSTPERSONCAMERA_H
+#define FIRSTPERSONCAMERA_H
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -24,20 +27,22 @@
   #endif
 #endif
 
-#include "Renderable.hpp"
-#include "TerrainAnimator.hpp"
+#define YAW	-90.0f
+#define PITCH 0.0f
 
-class DLL_PUBLIC HierarchicalModel : public Renderable, public ObjectCollider, public TerrainAnimator {
+#include "Camera.h"
+
+class DLL_PUBLIC FirstPersonCamera : public Camera
+{
 public:
-	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX) : Renderable(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {}
-    ~HierarchicalModel(){
-        initCollider = nullptr;
-        collider = nullptr;
-    }
-    std::vector<float>& getJoints() { return joints; }
-
-protected:
-    std::vector<float> joints;
+	FirstPersonCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 worldUp =
+		glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
+		float yaw = YAW, float pitch = PITCH, float speed = SPEED, float sensitivity = SENSITIVTY);
+	void mouseMoveCamera(float xoffset, float yoffset, float dt);
+	void moveFrontCamera(bool dir, float dt);
+	void moveRightCamera(bool dir, float dt);
+private:
+	void updateCamera();
 };
 
-
+#endif // FIRSTPERSONCAMERA_H

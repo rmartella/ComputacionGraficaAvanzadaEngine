@@ -1,4 +1,4 @@
-#include "Headers/Quad.hpp"
+#include "Headers/Quad.h"
 
 Quad::Quad(Shader* shader_ptr) : SimpleModel(shader_ptr) {
 	std::vector<GLuint> index = {

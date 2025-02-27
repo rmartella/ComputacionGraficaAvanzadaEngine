@@ -1,4 +1,4 @@
-#include "Headers/Sphere.hpp"
+#include "Headers/Sphere.h"
 
 Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio, BaseTerrain *terrain) : 
 	SimpleModel(shader_ptr), ObjectCollider(SPHERE) , TerrainAnimator(terrain) {

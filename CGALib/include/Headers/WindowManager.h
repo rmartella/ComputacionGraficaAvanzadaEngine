@@ -13,7 +13,7 @@
 #include <iostream>
 #include <memory>
 
-#include "InputManager.hpp"
+#include "InputManager.h"
 
 class WindowManager {
 public:

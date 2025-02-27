@@ -5,7 +5,7 @@
  *      Author: rey
  */
 
-#include "Headers/BaseTerrain.hpp"
+#include "Headers/BaseTerrain.h"
 
 BaseTerrain::BaseTerrain(Shader* shader_ptr, float yScale, float yShift, std::string heightMap) : 
 	yScale(yScale), yShift(yShift), SimpleModel(shader_ptr) {

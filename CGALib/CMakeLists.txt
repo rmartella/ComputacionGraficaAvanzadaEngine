@@ -1,7 +1,7 @@
 add_definitions(-DBUILDING_DLL) # Define a macro indicating DLL import
 
 file(GLOB CGALib_SRC
-     "./include/Headers/*.hpp"
+     "./include/Headers/*.h"
      "./src/*.cpp"
 )
 

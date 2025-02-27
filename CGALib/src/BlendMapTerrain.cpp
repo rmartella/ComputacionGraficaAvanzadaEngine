@@ -5,7 +5,7 @@
  *      Author: rey
  */
 
-#include "Headers/BlendMapTerrain.hpp"
+#include "Headers/BlendMapTerrain.h"
 
 BlendMapTerrain::BlendMapTerrain(Shader* shader_ptr, float yScale, float yShift, std::string heightMap, 
 	std::map<TEXTURE_BLENDMAP_TERRAIN, std::string> blendMapTextures) : 

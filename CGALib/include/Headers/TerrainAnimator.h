@@ -27,7 +27,7 @@
 #endif
 
 #include "TimeManager.h"
-#include "BaseTerrain.hpp"
+#include "BaseTerrain.h"
 
 class DLL_PUBLIC TerrainAnimator {
 

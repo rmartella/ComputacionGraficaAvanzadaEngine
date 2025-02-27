@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Headers/hmodels/Eclipse.hpp"
+#include "Headers/hmodels/Eclipse.h"
 
 // Variables globales (deberían ser extern si se usan en otro lado)
 inline int stateEclipse = 0;

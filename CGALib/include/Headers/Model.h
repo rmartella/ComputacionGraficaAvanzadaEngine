@@ -31,11 +31,11 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include "Renderable.hpp"
-#include "ObjectCollider.hpp"
-#include "Mesh.hpp"
-#include "BaseTerrain.hpp"
-#include "TerrainAnimator.hpp"
+#include "Renderable.h"
+#include "ObjectCollider.h"
+#include "Mesh.h"
+#include "BaseTerrain.h"
+#include "TerrainAnimator.h"
 
 class DLL_PUBLIC Model : public Renderable, public ObjectCollider, public TerrainAnimator {
 public:
@@ -46,6 +46,12 @@ public:
 	void readMissingBones(const aiAnimation* animation);
 	void getFinalBoneMatrix(std::string nodeNameToFind, AssimpNodeData& node, glm::mat4& nodeFondTransform, bool& nodeFound, glm::mat4 parentTansform);
 	void getBonesMatrix(AssimpNodeData& node, std::vector<glm::mat4>& transforms, glm::mat4 parentTansform);
+
+	void setShader(Shader* shader_ptr) {
+		Renderable::shader_ptr = shader_ptr;
+		for (GLuint i = 0; i < this->meshes.size(); i++)
+			this->meshes[i]->setShader(shader_ptr);
+	};
 
 	void setAnimationIndex(int animationIndex){
 		for(int i = 0; i < meshes.size(); i++)

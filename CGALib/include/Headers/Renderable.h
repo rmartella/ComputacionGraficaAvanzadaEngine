@@ -1,12 +1,4 @@
-/*
- * Terrain.h
- *
- *  Created on: Nov 14, 2019
- *      Author: rey
- */
-
-#ifndef SIMPLETERRAIN_H_
-#define SIMPLETERRAIN_H_
+#pragma once
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -33,21 +25,34 @@
   #endif
 #endif
 
-#include "BaseTerrain.hpp"
-#include "Texture2D.hpp"
+#include <GL/glew.h>
+#include "Shader.h"
+#include <glm/glm.hpp>
 
-class DLL_PUBLIC SimpleTerrain : public BaseTerrain {
+#include "AbstractModel.h"
+
+class DLL_PUBLIC Renderable: public AbstractModel {
+
 public:
-	SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap, std::string background);
-  void render() override;
-  void setScaleUVTerrain(glm::vec2 scaleUVTerrain) { this->scaleUVTerrain = scaleUVTerrain; }
+  Renderable() = default;
+	Renderable(Shader * shader_ptr) : shader_ptr(shader_ptr) {};
+	~Renderable() = default;
+
+	void virtual render() = 0;
+
+	void enableWireMode() {
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    wiredMode = true;
+	}
+
+	void disableWireMode() {
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    wiredMode = false;
+	}
+
+  void setShader(Shader * shader_ptr) { this->shader_ptr = shader_ptr; }
 
 protected:
-  SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap);
-  std::shared_ptr<Texture2D> textureBackground;
-
-private:
-  glm::vec2 scaleUVTerrain;
+	Shader * shader_ptr;
+  bool wiredMode = false;
 };
-
-#endif /* SRC_SIMPLETERRAIN_H_ */

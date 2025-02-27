@@ -34,8 +34,8 @@
   #endif
 #endif
 
-#include "SimpleModel.hpp"
-#include "Texture2D.hpp"
+#include "SimpleModel.h"
+#include "Texture2D.h"
 
 class DLL_PUBLIC BaseTerrain : public SimpleModel {
 public:

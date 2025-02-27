@@ -32,7 +32,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "WindowManager.hpp"
+#include "WindowManager.h"
 #include "TimeManager.h"
 
 class GLFWManager: public WindowManager {

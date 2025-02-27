@@ -40,7 +40,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Camera.hpp"
+#include "Camera.h"
 
 class InputManager {
 public:

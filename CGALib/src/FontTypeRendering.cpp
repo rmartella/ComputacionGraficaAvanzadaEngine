@@ -5,7 +5,7 @@
  *      Author: rey
  */
 
-#include "Headers/FontTypeRendering.hpp"
+#include "Headers/FontTypeRendering.h"
 
 namespace FontTypeRendering {
 

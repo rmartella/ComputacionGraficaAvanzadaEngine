@@ -1,4 +1,4 @@
-#include "Headers/SkyBoxSphere.hpp"
+#include "Headers/SkyBoxSphere.h"
 
 void SkyBoxSphere::render(){
 	GLint oldDepthFuncMode;

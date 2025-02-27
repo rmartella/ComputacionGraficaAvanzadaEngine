@@ -26,8 +26,8 @@
   #endif
 #endif
 
-#include "SimpleModel.hpp"
-#include "ObjectCollider.hpp"
+#include "SimpleModel.h"
+#include "ObjectCollider.h"
 
 class DLL_PUBLIC Cylinder : public SimpleModel, protected ObjectCollider {
 public:

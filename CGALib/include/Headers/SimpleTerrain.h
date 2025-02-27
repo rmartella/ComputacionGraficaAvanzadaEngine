@@ -5,8 +5,8 @@
  *      Author: rey
  */
 
-#ifndef BLENDMAPTERRAIN_H_
-#define BLENDMAPTERRAIN_H_
+#ifndef SIMPLETERRAIN_H_
+#define SIMPLETERRAIN_H_
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -33,29 +33,21 @@
   #endif
 #endif
 
-#include <map>
-#include "SimpleTerrain.hpp"
-#include "Texture2D.hpp"
+#include "BaseTerrain.h"
+#include "Texture2D.h"
 
-
-class DLL_PUBLIC BlendMapTerrain : public SimpleTerrain {
+class DLL_PUBLIC SimpleTerrain : public BaseTerrain {
 public:
-  enum TEXTURE_BLENDMAP_TERRAIN {
-      TEXTURE_BACKGROUND,
-      TEXTURE_R,
-      TEXTURE_G,
-      TEXTURE_B,
-      TEXTURE_BLENDMAP
-  };
-	BlendMapTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap, 
-    std::map<TEXTURE_BLENDMAP_TERRAIN, std::string> blendMapTextures);
+	SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap, std::string background);
   void render() override;
+  void setScaleUVTerrain(glm::vec2 scaleUVTerrain) { this->scaleUVTerrain = scaleUVTerrain; }
+
+protected:
+  SimpleTerrain(Shader* shader_ptr,float yScale, float yShift, std::string heightMap);
+  std::shared_ptr<Texture2D> textureBackground;
 
 private:
-  std::shared_ptr<Texture2D> textureR;
-  std::shared_ptr<Texture2D> textureG;
-  std::shared_ptr<Texture2D> textureB;
-  std::shared_ptr<Texture2D> textureBlendMap;
+  glm::vec2 scaleUVTerrain;
 };
 
-#endif /* SRC_BLENDMAPTERRAIN_H_ */
+#endif /* SRC_SIMPLETERRAIN_H_ */

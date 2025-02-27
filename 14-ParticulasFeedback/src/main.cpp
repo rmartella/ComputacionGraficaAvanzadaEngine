@@ -10,28 +10,31 @@
 // program include
 #include "Headers/TimeManager.h"
 
-#include "Headers/GLFWManager.hpp"
+#include "Headers/GLFWManager.h"
 
 // Shader include
 #include "Headers/Shader.h"
 
 // Model geometric includes
-#include "Headers/Sphere.hpp"
-#include "Headers/Cylinder.hpp"
-#include "Headers/Box.hpp"
-#include "Headers/Model.hpp"
-#include "Headers/SkyBoxSphere.hpp"
-#include "Headers/BlendMapTerrain.hpp"
+#include "Headers/Sphere.h"
+#include "Headers/Cylinder.h"
+#include "Headers/Box.h"
+#include "Headers/Quad.h"
+#include "Headers/Model.h"
+#include "Headers/SkyBoxSphere.h"
+#include "Headers/BlendMapTerrain.h"
 
-#include "Headers/FirstPersonCamera.hpp"
-#include "Headers/ThirdPersonCamera.hpp"
+#include "Headers/FirstPersonCamera.h"
+#include "Headers/ThirdPersonCamera.h"
 
-#include "Headers/hmodels/Eclipse.hpp"
-#include "Headers/hmodels/DarthVader.hpp"
-#include "Headers/hmodels/Lambo.hpp"
-#include "Headers/hmodels/Heli.hpp"
+#include "Headers/hmodels/Eclipse.h"
+#include "Headers/hmodels/DarthVader.h"
+#include "Headers/hmodels/Lambo.h"
+#include "Headers/hmodels/Heli.h"
 
-#include "Headers/KeyFrameAnimator.hpp"
+#include "Headers/KeyFrameAnimator.h"
+
+#include "Headers/FontTypeRendering.h"
 
 //GLM include
 #define GLM_FORCE_RADIANS
@@ -39,10 +42,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Headers/Texture2D.hpp"
-#include "Headers/TextureCube.hpp"
+#include "Headers/Texture2D.h"
+#include "Headers/TextureCube.h"
 
-#include "Headers/Lighting.hpp"
+#include "Headers/Lighting.h"
 
 #include "Headers/sm/eclipse.h"
 #include "Headers/sm/lambo.h"
@@ -59,6 +62,10 @@ Shader shaderTexture;
 Shader shaderMulLighting;
 //Shader para el terreno
 Shader shaderTerrain;
+//Shader para dibujar el buffer de profunidad
+Shader shaderDepth;
+// Shader para visualizar el buffer de profundidad
+Shader shaderViewDepth;
 
 std::shared_ptr<Sphere> esfera1;
 std::shared_ptr<Sphere> esfera2;
@@ -89,6 +96,8 @@ std::shared_ptr<KeyFrameAnimator> darthAnimation2;
 
 std::shared_ptr<BlendMapTerrain> terrain;
 
+LightManager lightManager;
+
 std::shared_ptr<Model> modelLamp1;
 std::shared_ptr<Model> modelLamp2;
 std::shared_ptr<Model> modelLampPost2;
@@ -105,18 +114,30 @@ std::vector<std::pair<glm::vec3, float>> lamp2 = {
 	{ glm::vec3(-52.73, 0, -3.90), -65.0 + 90 }
 };
 
-LightManager lightManager;
+std::shared_ptr<SpotLight> spotLight;
+
+std::shared_ptr<Quad> boxScreen;
+std::shared_ptr<FontTypeRendering::FontTypeRendering> modelText;
+bool iniciaPartida = false, presionarOpcion = false;
+std::map<std::string, glm::vec3> blendingUnsorted = {
+	{"aircraft", glm::vec3(0.0)},
+	{"lambo", glm::vec3(0.0)},
+	{"heli", glm::vec3(0.0)}
+};
+std::shared_ptr<Texture2D> textureIntro1;
+std::shared_ptr<Texture2D> textureIntro2;
+std::shared_ptr<Texture2D> textureScreen;
+Texture2D* textureIntroActive;
 
 GLFWManager glfwManager;
 
 double deltaTime;
 double currTime, lastTime;
 
-// Jump variables
-bool isJump = false;
-float GRAVITY = 1.81;
-double tmv = 0;
-double startTimeJump = 0;
+// Framesbuffers
+GLuint depthMap, depthMapFBO;
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+float near_plane = 0.1f, far_plane = 15.0f;
 
 // Se definen todos las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen);
@@ -224,6 +245,26 @@ void mayow_controller(int modelSelected){
 	GLFWManager::inputManager->getCamera()->updateCamera();
 }
 
+void introController(int modelSelected){
+	if(!iniciaPartida){
+		bool presionarEnter = GLFWManager::inputManager->getStatusKey(GLFW_KEY_ENTER) == GLFW_PRESS;
+		if(textureIntroActive == textureIntro1.get() && presionarEnter){
+			iniciaPartida = true;
+			textureIntroActive = textureScreen.get();
+			boxScreen->setShader(&shaderViewDepth);
+		}
+		else if(!presionarOpcion && GLFWManager::inputManager->getStatusKey(GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
+			presionarOpcion = true;
+			if(textureIntroActive == textureIntro1.get())
+				textureIntroActive = textureIntro2.get();
+			else if(textureIntroActive == textureIntro2.get())
+				textureIntroActive = textureIntro1.get();
+		}
+		else if( GLFWManager::inputManager->getStatusKey(GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE)
+			presionarOpcion = false;
+	}
+}
+
 // Implementacion de todas las funciones.
 void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
@@ -232,14 +273,16 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 
 	// Inicialización de los shaders
 	shader.initialize("../Shaders/colorShader.vs", "../Shaders/colorShader.fs");
 	shaderSkybox.initialize("../Shaders/skyBox.vs", "../Shaders/skyBox_fog.fs");
 	shaderTexture.initialize("../Shaders/texturizado.vs", "../Shaders/texturizado.fs");
-	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation.vs", "../Shaders/multipleLights.fs");
+	shaderMulLighting.initialize("../Shaders/iluminacion_textura_animation_shadow.vs", "../Shaders/multipleLights_shadow.fs");
 	shaderTerrain.initialize("../Shaders/terrain_shadow.vs", "../Shaders/terrain_shadow.fs");
+	shaderViewDepth.initialize("../Shaders/texturizado.vs", "../Shaders/texturizado_depth_view.fs");
+	shaderDepth.initialize("../Shaders/shadow_mapping_depth.vs");
 
 	std::map<BlendMapTerrain::TEXTURE_BLENDMAP_TERRAIN, std::string> blendMapTextures = {
 		{BlendMapTerrain::TEXTURE_BACKGROUND, "../Textures/grassy2.png"},
@@ -250,7 +293,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	};
 	terrain = std::make_shared<BlendMapTerrain>(&shaderTerrain, 32.0f, -16.0f, "../Textures/heightmap.png", blendMapTextures);
 	terrain->setScaleUVTerrain(glm::vec2(35.0f));
-	terrain->setScale(glm::vec3(0.78125, 0.1, 0.78125));
+	terrain->setScale(glm::vec3(0.78125));
 
 	boxCollider = std::make_shared<Box>(&shaderTexture);
 	boxCollider->enableWireMode();
@@ -266,7 +309,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 
 	box1 = std::make_shared<Box>(&shaderTexture, terrain.get());
 	box1->setPosition(glm::vec3(0.0, 2.0, -2.0));
-	box1->getCollider()->setRenderableCollider(boxCollider.get());
+	//box1->getCollider()->setRenderableCollider(boxCollider.get());
 
 	textureLanding = std::make_shared<Texture2D>("../Textures/landingPad.jpg", true);
 
@@ -302,6 +345,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 	heli->setPosition(glm::vec3(5.0, 10.0, -5.0));
 
 	darthVader = std::make_shared<DarthVader>(&shaderMulLighting, terrain.get());
+	darthVader->setPosition(glm::vec3(5.0, 10.0, -5.0));
 	darthVader->getCollider()->setRenderableCollider(boxCollider.get());
 	darthAnimation = std::make_shared<KeyFrameAnimator>("../animations/darth_1.txt", darthVader.get());
 	darthAnimation2 = std::make_shared<KeyFrameAnimator>("../animations/darth_2.txt", darthVader.get());
@@ -349,7 +393,7 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		lampPosition.y = terrain->getHeightTerrain(lampPosition.x, lampPosition.z) + 10.35 * 0.5;
 		lightManager.addPointLight(
 			Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)), 
-			lampPosition, 1.0, 0.009, 0.002);
+			lampPosition, 1.0, 0.09, 0.02);
 	}
 
 	for(int i = 0; i < lamp2.size(); i++){
@@ -364,8 +408,42 @@ void init(int width, int height, std::string strTitle, bool bFullScreen) {
 		lampPosition = matrixAdjustLamp[3];
 		lightManager.addPointLight(
 			Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)), 
-			lampPosition, 1.0, 0.009, 0.002);
+			lampPosition, 1.0, 0.09, 0.02);
 	}
+
+	spotLight = std::make_shared<SpotLight>(Light(glm::vec3(0.2, 0.16, 0.01), glm::vec3(0.4, 0.32, 0.02), glm::vec3(0.6, 0.58, 0.03)),
+		glm::vec3(0, -1, 0), heli->getModelMatrix()[3], 1.0, 0.009, 0.002, cos(glm::radians(12.5f)), cos(glm::radians(15.0f)));
+	lightManager.addSpotLight(spotLight);
+
+	boxScreen = std::make_shared<Quad>(&shaderTexture);
+	boxScreen->setScale(glm::vec3(2.0, 2.0, 1.0));
+	textureIntro1 = std::make_shared<Texture2D>("../Textures/Intro1.png", true);
+	textureIntro2 = std::make_shared<Texture2D>("../Textures/Intro2.png", true);
+	textureScreen = std::make_shared<Texture2D>("../Textures/Screen.png", true);
+	textureIntroActive = textureIntro1.get();
+	modelText = std::make_shared<FontTypeRendering::FontTypeRendering>(WindowManager::screenWidth, WindowManager::screenHeight);
+	modelText->Initialize();
+
+	/*******************************************
+	 * Inicializacion del framebuffer para
+	 * almacenar el buffer de profunidadad
+	 *******************************************/
+	glGenFramebuffers(1, &depthMapFBO);
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+				 SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
 
@@ -373,12 +451,95 @@ void destroy() {
 }
 
 void prepareScene(){
+	terrain->setShader(&shaderTerrain);
+	
+	modelRock->setShader(&shaderMulLighting);
+
+	modelAircraft->setShader(&shaderMulLighting);
+
+	// Eclipse
+	eclipse->setShader(&shaderMulLighting);
+
+	// Helicopter
+	heli->setShader(&shaderMulLighting);
+
+	// Lamborginhi
+	lambo->setShader(&shaderMulLighting);
+
+	// Dart Lego
+	darthVader->setShader(&shaderMulLighting);
+
+	//Lamp models
+	modelLamp1->setShader(&shaderMulLighting);
+	modelLamp2->setShader(&shaderMulLighting);
+	modelLampPost2->setShader(&shaderMulLighting);
+
+	//Buzz
+	//buzz->setShader(&shaderMulLighting);
+
+	//Grass
+	//modelGrass->setShader(&shaderMulLighting);
+
+	//Mayow
+	mayowModelAnimate->setShader(&shaderMulLighting);
+
+	//Cowboy
+	cowboyModelAnimate->setShader(&shaderMulLighting);
+
+	//Guardian
+	guardianModelAnimate->setShader(&shaderMulLighting);
+
+	//Cyborg
+	cyborgModelAnimate->setShader(&shaderMulLighting);
+
 }
 
 void prepareDepthScene(){
+	terrain->setShader(&shaderDepth);
+	
+	modelRock->setShader(&shaderDepth);
+
+	modelAircraft->setShader(&shaderDepth);
+
+	// Eclipse
+	eclipse->setShader(&shaderDepth);
+
+	// Helicopter
+	heli->setShader(&shaderDepth);
+
+	// Lamborginhi
+	lambo->setShader(&shaderDepth);
+
+	// Dart Lego
+	darthVader->setShader(&shaderDepth);
+
+	//Lamp models
+	modelLamp1->setShader(&shaderDepth);
+	modelLamp2->setShader(&shaderDepth);
+	modelLampPost2->setShader(&shaderDepth);
+
+	//Buzz
+	//buzz->setShader(&shaderDepth);
+
+	//Grass
+	//modelGrass->setShader(&shaderDepth);
+
+	//Mayow
+	mayowModelAnimate->setShader(&shaderDepth);
+
+	//Cowboy
+	cowboyModelAnimate->setShader(&shaderDepth);
+
+	//Guardian
+	guardianModelAnimate->setShader(&shaderDepth);
+
+	//Cyborg
+	cyborgModelAnimate->setShader(&shaderDepth);
 }
 
 void renderSolidScene(){
+
+	terrain->render();
 
 	textureLanding->bind(GL_TEXTURE0);
 	esfera1->render();
@@ -387,16 +548,9 @@ void renderSolidScene(){
 
 	modelRock->render();
 
-	modelAircraft->render();
 
 	eclipse->render();
 	sm_eclipse(eclipse);
-
-	lambo->render();
-	sm_lambo(lambo);
-
-	heli->render();
-	sm_heli(heli);
 
 	darthAnimation->animate();
 	darthVader->setScale(glm::vec3(0.5));
@@ -421,8 +575,6 @@ void renderSolidScene(){
 		esfera2->setPosition(glm::scale(mayowModelAnimate->getModelMatrix(), mayowModelAnimate->getScale()) * boneMatrix[3]);
 		esfera2->render();
 	}
-
-	terrain->render();
 
 	for(int i = 0; i < lamp1.size(); i++){
 		modelLamp1->setPosition(lamp1[i].first);
@@ -456,6 +608,52 @@ void renderSolidScene(){
 }
 
 void renderAlphaScene(bool render = true){
+	if(render)
+		modelText->render("Texto en OpenGL", -1, 0, 1, 0, 0, 24);
+
+	/**********
+	 * Update the position with alpha objects
+	 */
+	// Update the aircraft
+	blendingUnsorted.find("aircraft")->second = modelAircraft->getModelMatrix()[3];
+	// Update the lambo
+	blendingUnsorted.find("lambo")->second = lambo->getModelMatrix()[3];
+	// Update the helicopter
+	blendingUnsorted.find("heli")->second = heli->getModelMatrix()[3];
+
+	/**********
+	 * Sorter with alpha objects
+	 */
+	std::map<float, std::pair<std::string, glm::vec3>> blendingSorted;
+	std::map<std::string, glm::vec3>::iterator itblend;
+	for(itblend = blendingUnsorted.begin(); itblend != blendingUnsorted.end(); itblend++){
+		float distanceFromView = glm::length(GLFWManager::inputManager->getCamera()->getPosition() - itblend->second);
+		blendingSorted[distanceFromView] = std::make_pair(itblend->first, itblend->second);
+	}
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	for(std::map<float, std::pair<std::string, glm::vec3> >::reverse_iterator it = blendingSorted.rbegin(); it != blendingSorted.rend(); it++){
+		if(it->second.first.compare("aircraft") == 0){
+			modelAircraft->render();
+		}
+		else if(it->second.first.compare("lambo") == 0){
+			lambo->render();
+			sm_lambo(lambo);
+		}
+		else if(it->second.first.compare("heli") == 0){
+			heli->render();
+			sm_heli(heli);
+			spotLight->getPosition() = heli->getModelMatrix() * glm::vec4(0.0, 0.2, 1.75, 1.0);
+		}
+	}
+	if(render){
+		/************Render de imagen de frente**************/
+		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		textureIntroActive->bind(GL_TEXTURE0);
+		boxScreen->render();
+	}
+	glDisable(GL_BLEND);	
 }
 
 void applicationLoop() {
@@ -464,7 +662,7 @@ void applicationLoop() {
 	glm::vec3 lightPos = glm::vec3(10.0, 10.0, -10.0);
 
 	std::vector<std::function<void(int)>> callbacks = {
-        /*darth_controller,*/ mayow_controller
+        darth_controller, mayow_controller, introController
     };
 
 	while (psi) {
@@ -480,31 +678,55 @@ void applicationLoop() {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		if(!iniciaPartida){
+			shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+			shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
+			textureIntroActive->bind(GL_TEXTURE0);
+			boxScreen->render();
+			glfwManager.swapTheBuffers();
+			continue;
+		}
+
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f),
 				(float) GLFWManager::screenWidth / (float) GLFWManager::screenHeight, 0.01f, 100.0f);
 		Camera* camera = GLFWManager::inputManager->getCamera().get();
 		glm::mat4 view = camera->getViewMatrix();
 
+		// Projection light shadow mapping
+		glm::mat4 lightProjection = glm::mat4(1.0f), lightView = glm::mat4(1.0f);
+		glm::mat4 lightSpaceMatrix;
+		lightProjection = glm::ortho(-25.0f, 25.0f, -25.0f, 25.0f, near_plane, far_plane);// Se comenta despúes
+		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0)); // Se comenta después
+		lightSpaceMatrix = lightProjection * lightView;
+		shaderDepth.setMatrix4("lightSpaceMatrix", 1, false, glm::value_ptr(lightSpaceMatrix));
+
+		//view = lightView;
+		//projection = lightProjection;
+
 		// Settea la matriz de vista y projection al shader con solo color
-		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(projection));
-		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(view));
+		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(view));
+		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(projection));
 
 		// Settea la matriz de vista y projection al shader con skybox
 		shaderSkybox.setMatrix4("projection", 1, false,
 				glm::value_ptr(projection));
 		shaderSkybox.setMatrix4("view", 1, false,
-				glm::value_ptr(glm::mat4(glm::mat3(view))));
+				glm::value_ptr(glm::mat4(glm::mat3(lightView))));
 
 		// Settea la matriz de vista y projection al shader con multiples luces
 		shaderMulLighting.setMatrix4("projection", 1, false,
 					glm::value_ptr(projection));
 		shaderMulLighting.setMatrix4("view", 1, false,
 				glm::value_ptr(view));
+		shaderMulLighting.setMatrix4("lightSpaceMatrix", 1, false,
+				glm::value_ptr(lightSpaceMatrix));
 		// Settea la matriz de vista y projection al shader con multiples luces
 		shaderTerrain.setMatrix4("projection", 1, false,
 					glm::value_ptr(projection));
 		shaderTerrain.setMatrix4("view", 1, false,
 				glm::value_ptr(view));
+		shaderTerrain.setMatrix4("lightSpaceMatrix", 1, false,
+				glm::value_ptr(lightSpaceMatrix));
 
 		/*******************************************
 		 * Propiedades Luz direccional
@@ -512,9 +734,59 @@ void applicationLoop() {
 		shaderMulLighting.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 		shaderTerrain.setVectorFloat3("viewPos", glm::value_ptr(camera->getPosition()));
 
+		/*******************************************
+		 * Propiedades de neblina
+		 *******************************************/
+		shaderMulLighting.setVectorFloat3("fogColor", glm::value_ptr(glm::vec3(0.5, 0.5, 0.4)));
+		shaderTerrain.setVectorFloat3("fogColor", glm::value_ptr(glm::vec3(0.5, 0.5, 0.4)));
+		shaderSkybox.setVectorFloat3("fogColor", glm::value_ptr(glm::vec3(0.5, 0.5, 0.4)));
+
 		lightManager.applyLighting({&shaderMulLighting, &shaderTerrain});
 
+		/*******************************************
+		 * 1.- We render the depth buffer
+		 *******************************************/
+		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// render scene from light's point of view
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		//glCullFace(GL_FRONT);
+		prepareDepthScene();
 		renderSolidScene();
+		renderAlphaScene(false);
+		//glCullFace(GL_BACK);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		/*******************************************
+		 * Debug to view the texture view map
+		 *******************************************/
+		// reset viewport
+		/*glViewport(0, 0, WindowManager::screenWidth, WindowManager::screenHeight);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// render Depth map to quad for visual debugging
+		shaderViewDepth.setMatrix4("projection", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		shaderViewDepth.setMatrix4("view", 1, false, glm::value_ptr(glm::mat4(1.0)));
+		shaderViewDepth.setFloat("near_plane", near_plane);
+		shaderViewDepth.setFloat("far_plane", far_plane);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		boxScreen->render();*/
+
+		/*******************************************
+		 * 2.- We render the normal objects
+		 *******************************************/
+		glViewport(0, 0, WindowManager::screenWidth, WindowManager::screenHeight);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		prepareScene();
+		glActiveTexture(GL_TEXTURE10);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		shaderMulLighting.setInt("shadowMap", 10);
+		shaderTerrain.setInt("shadowMap", 10);
+		renderSolidScene();
+		/**********Render de transparencias***************/
+		renderAlphaScene();
 
 		glfwManager.swapTheBuffers();
 	}

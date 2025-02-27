@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Headers/hmodels/Heli.hpp"
+#include "Headers/hmodels/Heli.h"
 
 // Variables globales (deberían ser extern si se usan en otro lado)
 int stateHeli = 0;

@@ -26,7 +26,7 @@
   #endif
 #endif
 
-#include "Headers/HierarchicalModel.hpp"
+#include "Headers/HierarchicalModel.h"
 
 class DLL_PUBLIC Eclipse : public HierarchicalModel {
 public:
@@ -83,6 +83,13 @@ public:
         modelEclipseRearWheels->render();
 
         this->updateCollider(modelMatrixEclipseChasis);
+    }
+
+    void setShader(Shader* shader_ptr) override { 
+        Renderable::setShader(shader_ptr);
+        modelEclipseChasis->setShader(shader_ptr);
+        modelEclipseFrontalWheels->setShader(shader_ptr);
+        modelEclipseRearWheels->setShader(shader_ptr);
     }
 
 private:

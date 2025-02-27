@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef BOX_H
+#define BOX_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -25,43 +27,15 @@
   #endif
 #endif
 
-#include "Texture.hpp"
-#include <string>
+#include "SimpleModel.h"
+#include "ObjectCollider.h"
+#include "TerrainAnimator.h"
 
-class DLL_PUBLIC Texture2D : public Texture {
-
+class DLL_PUBLIC Box : public SimpleModel, public ObjectCollider, public TerrainAnimator
+{
 public:
-	Texture2D(const std::string& fileName, bool load = true);
-	void loadImage( bool flipImage = false);
-	void freeImage();
-
-	std::string getFileName() {
-		return fileName;
-	}
-
-	int getWidth(){
-		return this->imageWidth;
-	}
-
-	int getHeight(){
-		return this->imageHeight;
-	}
-
-	int getChannels(){
-		return this->channels;
-	}
-
-	unsigned char * getData(){
-		return this->data;
-	}
-
-private:
-	virtual void load() override;
-
-protected:
-	std::string fileName;
-	int imageWidth = 0;
-	int imageHeight = 0;
-	int channels = 0;
-	unsigned char * data;
+	Box(Shader* shader_ptr, BaseTerrain *terrain = nullptr);
+    void render() override;
 };
+
+#endif // BOX_H

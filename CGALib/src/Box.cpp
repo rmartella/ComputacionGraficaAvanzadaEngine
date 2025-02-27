@@ -1,4 +1,4 @@
-#include "Headers/Box.hpp"
+#include "Headers/Box.h"
 
 Box::Box(Shader* shader_ptr, BaseTerrain *terrain) : 
 	SimpleModel(shader_ptr), ObjectCollider(BOX), TerrainAnimator(terrain) {

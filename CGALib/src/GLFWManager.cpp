@@ -1,6 +1,6 @@
 
-#include "Headers/GLFWManager.hpp"
-#include "Headers/GLFWInputManager.hpp"
+#include "Headers/GLFWManager.h"
+#include "Headers/GLFWInputManager.h"
 
 int WindowManager::screenWidth = 800;
 int WindowManager::screenHeight = 700;

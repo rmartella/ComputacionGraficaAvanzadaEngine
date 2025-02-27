@@ -1,6 +1,5 @@
-
-#ifndef QUAD_H
-#define QUAD_H
+#ifndef SPHERE_H
+#define SPHERE_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -27,14 +26,18 @@
   #endif
 #endif
 
-#include "SimpleModel.hpp"
-#include "ObjectCollider.hpp"
-#include "TerrainAnimator.hpp"
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include "SimpleModel.h"
+#include "ObjectCollider.h"
+#include "TerrainAnimator.h"
 
-class DLL_PUBLIC Quad : public SimpleModel
+class DLL_PUBLIC Sphere : public SimpleModel, public ObjectCollider, public TerrainAnimator
 {
 public:
-	Quad(Shader* shader_ptr);    
+	Sphere(Shader* shader_ptr, int slices, int stacks, 
+        float ratio = 0.5, BaseTerrain *terrain = nullptr);
+    void render() override;
 };
 
-#endif // QUAD_H
+#endif // SPHERE_H

@@ -26,8 +26,8 @@
   #endif
 #endif
 
-#include "Headers/Model.hpp"
-#include "Headers/HierarchicalModel.hpp"
+#include "Headers/Model.h"
+#include "Headers/HierarchicalModel.h"
 
 class DLL_PUBLIC Lambo : public HierarchicalModel {
 public:
@@ -45,6 +45,7 @@ public:
     }
 
     void render() {
+        glDisable(GL_CULL_FACE);
         animate(modelMatrix);
         glm::mat4 modelMatrixLamboBlend = glm::scale(modelMatrix, scale);
         modelLambo->getModelMatrix() = modelMatrixLamboBlend;
@@ -67,6 +68,18 @@ public:
         modelLamboRearRightWheel->getModelMatrix() = modelMatrixLamboBlend;
         modelLamboRearRightWheel->render();
         this->updateCollider(modelMatrixLamboBlend);
+        glEnable(GL_CULL_FACE);
+    }
+
+    void setShader(Shader* shader_ptr) override { 
+        Renderable::setShader(shader_ptr);
+        modelLambo->setShader(shader_ptr);
+        modelLamboLeftDor->setShader(shader_ptr);
+        modelLamboRightDor->setShader(shader_ptr);
+        modelLamboFrontLeftWheel->setShader(shader_ptr);
+        modelLamboFrontRightWheel->setShader(shader_ptr);
+        modelLamboRearLeftWheel->setShader(shader_ptr);
+        modelLamboRearRightWheel->setShader(shader_ptr);
     }
 
 private:

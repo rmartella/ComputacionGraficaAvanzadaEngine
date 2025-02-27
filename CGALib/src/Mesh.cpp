@@ -6,11 +6,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Headers/Mesh.hpp"
+#include "Headers/Mesh.h"
 
 Mesh::Mesh(const aiMesh* mesh, const aiMaterial* material, const std::string path, 
 	const aiScene* scene,  const AssimpNodeData& rootNode, Shader * shader) 
-	: shader_ptr(shader), path(path), rootNode(rootNode){
+	: Renderable(shader), path(path), rootNode(rootNode){
 	this->processMesh(mesh, material, boneInfoMap);
 	this->animations = scene->mAnimations;
 	this->numAnimations = scene->mNumAnimations;
@@ -77,7 +77,7 @@ void Mesh::render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::
 	}
 
 	// Se Dibuja la maya
-	Drawable::draw();
+	this->render();
 
 	shader_ptr->setInt("numBones", 0);
 
@@ -266,4 +266,8 @@ void Mesh::calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTr
 	for (int i = 0; i < node->children.size(); i++)
 		calculateBoneTransform(&node->children[i], globalTransformation, 
 			pAnimation, animationTime, finalBoneMatrices, bones);
+}
+
+void Mesh::render() {
+	Drawable::draw();
 }

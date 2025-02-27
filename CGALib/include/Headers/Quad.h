@@ -1,4 +1,6 @@
-#pragma once
+
+#ifndef QUAD_H
+#define QUAD_H
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -25,32 +27,14 @@
   #endif
 #endif
 
-#include <GL/glew.h>
-#include "Shader.h"
-#include <glm/glm.hpp>
+#include "SimpleModel.h"
+#include "ObjectCollider.h"
+#include "TerrainAnimator.h"
 
-#include "AbstractModel.hpp"
-
-class DLL_PUBLIC Renderable: public AbstractModel {
-
+class DLL_PUBLIC Quad : public SimpleModel
+{
 public:
-  Renderable() = default;
-	Renderable(Shader * shader_ptr) : shader_ptr(shader_ptr) {};
-	~Renderable() = default;
-
-	void virtual render() = 0;
-
-	void enableWireMode() {
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    wiredMode = true;
-	}
-
-	void disableWireMode() {
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    wiredMode = false;
-	}
-
-protected:
-	Shader * shader_ptr;
-  bool wiredMode = false;
+	Quad(Shader* shader_ptr);    
 };
+
+#endif // QUAD_H

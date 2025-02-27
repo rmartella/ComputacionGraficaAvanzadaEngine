@@ -5,7 +5,7 @@
  *      Author: rey
  */
 
-#include "Headers/SimpleTerrain.hpp"
+#include "Headers/SimpleTerrain.h"
 
 SimpleTerrain::SimpleTerrain(Shader* shader_ptr, float yScale, float yShift, std::string heightMap, std::string background) : 
 	BaseTerrain(shader_ptr, yScale, yShift, heightMap), scaleUVTerrain(1.0) {

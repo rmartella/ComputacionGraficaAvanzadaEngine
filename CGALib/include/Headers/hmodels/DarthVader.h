@@ -26,7 +26,7 @@
   #endif
 #endif
 
-#include "Headers/HierarchicalModel.hpp"
+#include "Headers/HierarchicalModel.h"
 
 class DLL_PUBLIC DarthVader : public HierarchicalModel
 {
@@ -108,6 +108,19 @@ public:
         // Se regresa el cull faces IMPORTANTE para la capa
         glEnable(GL_CULL_FACE);
         this->updateCollider(modelMatrixDartBody);
+    }
+
+    void setShader(Shader* shader_ptr) override { 
+        Renderable::setShader(shader_ptr);
+        modelDartLegoBody->setShader(shader_ptr);
+        modelDartLegoMask->setShader(shader_ptr);
+        modelDartLegoHead->setShader(shader_ptr);
+        modelDartLegoLeftArm->setShader(shader_ptr);
+        modelDartLegoRightArm->setShader(shader_ptr);
+        modelDartLegoLeftHand->setShader(shader_ptr);
+        modelDartLegoRightHand->setShader(shader_ptr);
+        modelDartLegoLeftLeg->setShader(shader_ptr);
+        modelDartLegoRightLeg->setShader(shader_ptr);
     }
 
 private:

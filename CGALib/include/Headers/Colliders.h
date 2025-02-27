@@ -31,7 +31,7 @@
 #include <memory>
 #include <iostream>
 
-#include "Renderable.hpp"
+#include "Renderable.h"
 
 enum TYPE_COLLIDER {
 	SPHERE, BOX, CYLINDER, NONE

@@ -1,7 +1,7 @@
 #include <assimp/postprocess.h>
-#include "Headers/Model.hpp"
+#include "Headers/Model.h"
 #include "Headers/TimeManager.h"
-#include "Headers/assimp_glm_helpers.hpp"
+#include "Headers/assimp_glm_helpers.h"
 
 Model::Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain, TYPE_COLLIDER typeCollider): 
 	Renderable(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {

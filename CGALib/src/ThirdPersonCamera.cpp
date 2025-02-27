@@ -1,4 +1,4 @@
-#include "Headers/ThirdPersonCamera.hpp"
+#include "Headers/ThirdPersonCamera.h"
 
 ThirdPersonCamera::ThirdPersonCamera(float distanceFromTarget){
     pitch = glm::radians(20.0f);

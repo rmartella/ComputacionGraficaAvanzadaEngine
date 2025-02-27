@@ -1,4 +1,5 @@
 #pragma once
+
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -24,29 +25,43 @@
   #endif
 #endif
 
-#include "Colliders.hpp"
+#include "Texture.h"
+#include <string>
 
-class DLL_PUBLIC ObjectCollider {
+class DLL_PUBLIC Texture2D : public Texture {
+
 public:
-	ObjectCollider(TYPE_COLLIDER typeCollider) : typeCollider(typeCollider) {}
-	~ObjectCollider(){
-		if(collider != nullptr)
-			delete collider;
-    if(initCollider != nullptr)
-			delete initCollider;
+	Texture2D(const std::string& fileName, bool load = true);
+	void loadImage( bool flipImage = false);
+	void freeImage();
+
+	std::string getFileName() {
+		return fileName;
 	}
 
-	Collider* getCollider() { return collider; }
-    Collider* getInitCollider() { return initCollider; }
+	int getWidth(){
+		return this->imageWidth;
+	}
+
+	int getHeight(){
+		return this->imageHeight;
+	}
+
+	int getChannels(){
+		return this->channels;
+	}
+
+	unsigned char * getData(){
+		return this->data;
+	}
+
+private:
+	virtual void load() override;
 
 protected:
-	TYPE_COLLIDER typeCollider;
-	Collider* collider = nullptr;
-    Collider* initCollider = nullptr;
-	
-    virtual void updateCollider(glm::mat4 modelMatrix) {
-        collider->updateLogicCollider(initCollider, modelMatrix);
-    }
+	std::string fileName;
+	int imageWidth = 0;
+	int imageHeight = 0;
+	int channels = 0;
+	unsigned char * data;
 };
-
-

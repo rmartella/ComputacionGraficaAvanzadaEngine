@@ -25,8 +25,8 @@
   #endif
 #endif
 
-#include "Renderable.hpp"
-#include "Drawable.hpp"
+#include "Renderable.h"
+#include "Drawable.h"
 
 class DLL_PUBLIC SimpleModel : public Renderable, protected Drawable {
 

@@ -1,4 +1,4 @@
-#include "Headers/Cylinder.hpp"
+#include "Headers/Cylinder.h"
 
 Cylinder::Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius, float bottomRadius, float height) : 
 	SimpleModel(shader_ptr), ObjectCollider(CYLINDER) {

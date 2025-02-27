@@ -93,7 +93,12 @@ public:
     SpotLight(glm::vec3 ambient, glm::vec3 difuse, glm::vec3 specular, glm::vec3 direction, 
         glm::vec3 position, float constant, float linear, float quadratic, 
         float cutOff, float outerCutOff) : 
-        PointLight(ambient, difuse, specular, position, constant, linear, quadratic), direction(direction) {};
+        PointLight(ambient, difuse, specular, position, constant, linear, quadratic), direction(direction), cutOff(cutOff), outerCutOff(outerCutOff) {};
+
+    SpotLight(const Light& light, glm::vec3 direction, 
+        glm::vec3 position, float constant, float linear, float quadratic, 
+        float cutOff, float outerCutOff) : 
+        PointLight(light, position, constant, linear, quadratic), direction(direction), cutOff(cutOff), outerCutOff(outerCutOff) {};
   
     glm::vec3& getDirection() { return direction; }
     float& getCutOff() { return cutOff; }
@@ -112,11 +117,13 @@ public:
     void addDirectionalLight(const Light& light, const glm::vec3& direction);
     void addPointLight(const glm::vec3& ambient, const glm::vec3& difuse, const glm::vec3& specular, const glm::vec3& position, 
         float constant, float linear, float quadratic);
-    void addPointLight(const std::shared_ptr<PointLight> pointLight);
     void addPointLight(const Light& light, const glm::vec3& position, float constant, float linear, float quadratic);
+    void addPointLight(const std::shared_ptr<PointLight> pointLight);
     void addSpotLight(const glm::vec3& ambient, const glm::vec3& difuse, const glm::vec3& specular, const glm::vec3& direction, 
-    const glm::vec3& position, float constant, float linear, float quadratic, 
+        const glm::vec3& position, float constant, float linear, float quadratic, float cutOff, float outerCutOff);
+    void addSpotLight(const Light& light, const glm::vec3& direction, const glm::vec3& position, float constant, float linear, float quadratic, 
         float cutOff, float outerCutOff);
+    void addSpotLight(const std::shared_ptr<SpotLight> spotLight);
 
     void applyLighting(std::vector<Shader*> shaders_ptr); // Llamada para configurar todas las luces en los shaders
 private:

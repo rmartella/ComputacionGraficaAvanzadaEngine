@@ -23,9 +23,9 @@
   #endif
 #endif
 
-#include "InputManager.hpp"
-#include "FirstPersonCamera.hpp"
-#include "ThirdPersonCamera.hpp"
+#include "InputManager.h"
+#include "FirstPersonCamera.h"
+#include "ThirdPersonCamera.h"
 
 class GLFWInputManager : public InputManager {
 public:

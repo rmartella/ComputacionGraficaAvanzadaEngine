@@ -1,5 +1,5 @@
 #include <glm/gtc/type_ptr.hpp>
-#include "Headers/Lighting.hpp"
+#include "Headers/Lighting.h"
 
 void LightManager::addDirectionalLight(const glm::vec3& ambient, const glm::vec3& difuse, 
 	const glm::vec3& specular, const glm::vec3& direction){
@@ -29,6 +29,15 @@ void LightManager::addSpotLight(const glm::vec3& ambient, const glm::vec3& difus
 	spotLights.push_back(std::make_shared<SpotLight>(ambient, difuse, specular, direction, position, constant, linear, quadratic, cutOff, outerCutOff));
 }
 
+void LightManager::addSpotLight(const Light& light, const glm::vec3& direction, const glm::vec3& position, float constant, float linear, float quadratic, 
+    float cutOff, float outerCutOff){
+	spotLights.push_back(std::make_shared<SpotLight>(light, direction, position, constant, linear, quadratic, cutOff, outerCutOff));
+}
+
+void LightManager::addSpotLight(const std::shared_ptr<SpotLight> spotLight){
+	spotLights.push_back(spotLight);
+}
+
 void LightManager::applyLighting(std::vector<Shader*> shaders_ptr) {
 	for(u_int i = 0; i < shaders_ptr.size(); i++){
 		if(directionalLights){
@@ -54,7 +63,7 @@ void LightManager::applyLighting(std::vector<Shader*> shaders_ptr) {
 		}
 
 		shaders_ptr[i]->setInt("spotLightCount", spotLights.size());
-		/*for(u_int j = 0; j < spotLights.size(); j++){
+		for(u_int j = 0; j < spotLights.size(); j++){
 			shaders_ptr[i]->setVectorFloat3("spotLights[" + std::to_string(j) + "].light.ambient", glm::value_ptr(spotLights[j]->getAmbiente()));
 			shaders_ptr[i]->setVectorFloat3("spotLights[" + std::to_string(j) + "].light.diffuse", glm::value_ptr(spotLights[j]->getDifuse()));
 			shaders_ptr[i]->setVectorFloat3("spotLights[" + std::to_string(j) + "].light.specular", glm::value_ptr(spotLights[j]->getSpecular()));
@@ -63,8 +72,8 @@ void LightManager::applyLighting(std::vector<Shader*> shaders_ptr) {
 			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].constant", spotLights[j]->getConstant());
 			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].linear", spotLights[j]->getLinear());
 			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].quadratic", spotLights[j]->getQuadratic());
-			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].cutOff", cos(glm::radians(spotLights[j]->getCutOff())));
-			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].outerCutOff", cos(glm::radians(spotLights[j]->getOuterCutOff())));
-		}*/
+			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].cutOff", spotLights[j]->getCutOff());
+			shaders_ptr[i]->setFloat("spotLights[" + std::to_string(j) + "].outerCutOff", spotLights[j]->getOuterCutOff());
+		}
 	}
 }

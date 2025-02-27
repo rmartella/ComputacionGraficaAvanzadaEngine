@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Headers/hmodels/Lambo.hpp"
+#include "Headers/hmodels/Lambo.h"
 
 // Variables globales (deberían ser extern si se usan en otro lado)
 int stateLambo = 0;

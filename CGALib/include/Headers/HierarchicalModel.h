@@ -1,7 +1,4 @@
-
-#ifndef BOX_H
-#define BOX_H
-
+#pragma once
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
     #ifdef __GNUC__
@@ -27,15 +24,21 @@
   #endif
 #endif
 
-#include "SimpleModel.hpp"
-#include "ObjectCollider.hpp"
-#include "TerrainAnimator.hpp"
+#include "Renderable.h"
+#include "TerrainAnimator.h"
 
-class DLL_PUBLIC Box : public SimpleModel, public ObjectCollider, public TerrainAnimator
-{
+class DLL_PUBLIC HierarchicalModel : public Renderable, public ObjectCollider, public TerrainAnimator {
 public:
-	Box(Shader* shader_ptr, BaseTerrain *terrain = nullptr);
-    void render() override;
+	HierarchicalModel(Shader* shader_ptr, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX) : Renderable(shader_ptr), ObjectCollider(typeCollider), TerrainAnimator(terrain) {}
+    ~HierarchicalModel(){
+        initCollider = nullptr;
+        collider = nullptr;
+    }
+    std::vector<float>& getJoints() { return joints; }
+    virtual void setShader(Shader* shader_ptr) = 0;
+
+protected:
+    std::vector<float> joints;
 };
 
-#endif // BOX_H
+

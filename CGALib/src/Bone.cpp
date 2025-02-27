@@ -7,8 +7,8 @@
 
 #include <map>
 
-#include "Headers/Bone.hpp"
-#include "Headers/assimp_glm_helpers.hpp"
+#include "Headers/Bone.h"
+#include "Headers/assimp_glm_helpers.h"
 
 Bone::Bone(const std::string& name, int id) : m_Name(name), /*m_Id(id),*/ m_LocalTransform(1.0) {
 }
