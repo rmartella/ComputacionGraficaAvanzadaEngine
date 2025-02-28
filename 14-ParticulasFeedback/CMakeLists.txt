@@ -30,7 +30,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include_directories(${CMAKE_SOURCE_DIR}/CGALib/include "/usr/include/freetype2")
 endif()
 
-add_executable(14-ParticulasFeedback ./src/main.cpp)
+add_executable(14-ParticulasFeedback ./src/Scene.cpp ./src/main.cpp)
 
 set_target_properties(14-ParticulasFeedback
     PROPERTIES
