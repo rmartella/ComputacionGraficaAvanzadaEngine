@@ -704,8 +704,8 @@ void applicationLoop() {
 		//projection = lightProjection;
 
 		// Settea la matriz de vista y projection al shader con solo color
-		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(view));
-		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(projection));
+		shaderTexture.setMatrix4("projection", 1, false, glm::value_ptr(projection));
+		shaderTexture.setMatrix4("view", 1, false, glm::value_ptr(view));
 
 		// Settea la matriz de vista y projection al shader con skybox
 		shaderSkybox.setMatrix4("projection", 1, false,
