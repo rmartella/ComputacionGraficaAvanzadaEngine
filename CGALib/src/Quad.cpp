@@ -1,6 +1,6 @@
 #include "Headers/Quad.h"
 
-Quad::Quad(Shader* shader_ptr) : SimpleModel(shader_ptr) {
+Quad::Quad(Shader* shader_ptr) : SimpleModel(shader_ptr, NONE) {
 	std::vector<GLuint> index = {
 		0, 1, 2, 0, 2, 3
 	};

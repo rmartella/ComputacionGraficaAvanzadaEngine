@@ -30,29 +30,34 @@
 #include <glm/glm.hpp>
 
 #include "AbstractModel.h"
+#include "Drawable.h"
 
-class DLL_PUBLIC Renderable: public AbstractModel {
+class DLL_PUBLIC Renderable: public AbstractModel, protected Drawable {
 
 public:
-  Renderable() = default;
+    Renderable() = default;
 	Renderable(Shader * shader_ptr) : shader_ptr(shader_ptr) {};
 	~Renderable() = default;
 
-	void virtual render() = 0;
+	virtual void render() {
+        Drawable::draw();
+    }
 
-	void enableWireMode() {
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    void enableWireMode() {
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     wiredMode = true;
-	}
+    }
 
 	void disableWireMode() {
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    wiredMode = false;
+        wiredMode = false;
 	}
 
-  void setShader(Shader * shader_ptr) { this->shader_ptr = shader_ptr; }
+    void setShader(Shader * shader_ptr) { this->shader_ptr = shader_ptr; }
+
+    Shader* getShader() { return this->shader_ptr; }
 
 protected:
 	Shader * shader_ptr;
-  bool wiredMode = false;
+    bool wiredMode = false;
 };

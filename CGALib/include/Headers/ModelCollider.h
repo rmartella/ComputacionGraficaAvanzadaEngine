@@ -1,6 +1,5 @@
-
-#ifndef BOX_H
-#define BOX_H
+#ifndef BASEMODEL_H_
+#define BASEMODEL_H_
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -27,14 +26,12 @@
   #endif
 #endif
 
-#include "SimpleModel.h"
-#include "TerrainAnimator.h"
+#include "Renderable.h"
+#include "ObjectCollider.h"
 
-class DLL_PUBLIC Box : public SimpleModel, public TerrainAnimator
-{
+class DLL_PUBLIC ModelCollider : public Renderable, public ObjectCollider {
 public:
-	Box(Shader* shader_ptr, BaseTerrain *terrain = nullptr);
-    void render() override;
+    ModelCollider(Shader* shader_ptr, TYPE_COLLIDER typeCollider) : Renderable(shader_ptr), ObjectCollider(typeCollider){}
 };
 
-#endif // BOX_H
+#endif

@@ -25,13 +25,12 @@
   #endif
 #endif
 
-#include "Renderable.h"
-#include "Drawable.h"
+#include "ModelCollider.h"
 
-class DLL_PUBLIC SimpleModel : public Renderable, protected Drawable {
+class DLL_PUBLIC SimpleModel : public ModelCollider {
 
 public:
-	SimpleModel(Shader* shader_ptr) : Renderable(shader_ptr) {};
+	SimpleModel(Shader* shader_ptr, TYPE_COLLIDER typeCollider) : ModelCollider(shader_ptr, typeCollider) {};
 	~SimpleModel() = default;
 
 	void render() override {
@@ -45,7 +44,7 @@ public:
         glm::mat4 finalModelMatrix = modelMatrix * glm::scale(glm::mat4(1.0), scale);
         this->shader_ptr->setMatrix4("model", 1, GL_FALSE, glm::value_ptr(finalModelMatrix));
         this->shader_ptr->setVectorFloat4("ourColor", glm::value_ptr(color));
-        Drawable::draw();
+        Renderable::render();
         shader_ptr->turnOff();
         glPolygonMode(GL_FRONT, polygonMode[0]);
         glPolygonMode(GL_BACK, polygonMode[1]);

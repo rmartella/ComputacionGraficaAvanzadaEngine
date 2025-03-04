@@ -94,7 +94,7 @@ public:
 	bool testCollision(Collider* collider) override {
 		SBBCollider* a = this;
 		if(collider->getTypeCollider() == BOX){
-			collider->testCollision(a);
+			return collider->testCollision(a);
 		}
 		else if(collider->getTypeCollider() == SPHERE){
 			SBBCollider* b = dynamic_cast<SBBCollider*>(collider);

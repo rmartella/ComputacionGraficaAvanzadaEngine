@@ -28,8 +28,6 @@
 #endif
 
 #include "SimpleModel.h"
-#include "ObjectCollider.h"
-#include "TerrainAnimator.h"
 
 class DLL_PUBLIC Quad : public SimpleModel
 {

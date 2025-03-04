@@ -65,17 +65,17 @@ public:
 		memcpy(p, vertexArray.data(), vertexArray.size() * sizeof(vertexArray[0]));
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 	}
-
-	void draw() {
-		if(totalIndex > 0)
-			draw(0, totalIndex);
-	}
 	
 protected:
 	GLuint VAO;
 	GLuint VBO;
 	GLuint EBO;
 	size_t totalIndex = 0;
+
+	void draw() {
+		if(totalIndex > 0)
+			draw(0, totalIndex);
+	}
 
 	void init(std::vector<Vertex> vertexArray, std::vector<GLuint> index) {
 		this->totalIndex = index.size();
@@ -101,6 +101,7 @@ protected:
 	}
 
 private:
+
 	void destroy() {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &VBO);

@@ -38,15 +38,18 @@ public:
 
 	Collider* getCollider() { return collider; }
     Collider* getInitCollider() { return initCollider; }
+    // TODO Se hizo publico
+    virtual void updateCollider(glm::mat4 modelMatrix) {
+        collider->updateLogicCollider(initCollider, modelMatrix);
+    }
+
+    TYPE_COLLIDER& getTypeCollider() { return typeCollider; }
 
 protected:
 	TYPE_COLLIDER typeCollider;
 	Collider* collider = nullptr;
     Collider* initCollider = nullptr;
 	
-    virtual void updateCollider(glm::mat4 modelMatrix) {
-        collider->updateLogicCollider(initCollider, modelMatrix);
-    }
 };
 
 

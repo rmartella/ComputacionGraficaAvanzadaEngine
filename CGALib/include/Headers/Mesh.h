@@ -46,14 +46,13 @@ struct AssimpNodeData{
   std::vector<AssimpNodeData> children;
 };
 
-class DLL_PUBLIC Mesh : public Drawable, public Renderable {
+class DLL_PUBLIC Mesh : public Renderable {
 public:
 
   Mesh(const aiMesh *mesh, const aiMaterial *material, const std::string path,
     const aiScene* scene, const AssimpNodeData& rootNode, Shader *shader);
   ~Mesh();
   void render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::mat4 m_GlobalInverseTransform);
-  void render() override;
   bool getFinalBoneMatrix(std::string nodeName, glm::mat4& boneMatrix);
 
   void setAnimationIndex(int animationIndex){

@@ -1,6 +1,5 @@
-
-#ifndef BOX_H
-#define BOX_H
+#ifndef ANIMATOR_H_
+#define ANIMATOR_H_
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_DLL
@@ -27,14 +26,21 @@
   #endif
 #endif
 
-#include "SimpleModel.h"
-#include "TerrainAnimator.h"
+#include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-class DLL_PUBLIC Box : public SimpleModel, public TerrainAnimator
-{
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+#include "HierarchicalModel.h"
+
+class DLL_PUBLIC Animator {
 public:
-	Box(Shader* shader_ptr, BaseTerrain *terrain = nullptr);
-    void render() override;
+    virtual void animate() = 0;
 };
 
-#endif // BOX_H
+#endif /* ANIMATOR_H_ */

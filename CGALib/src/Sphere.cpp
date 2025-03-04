@@ -1,7 +1,7 @@
 #include "Headers/Sphere.h"
 
 Sphere::Sphere(Shader* shader_ptr, int slices, int stacks, float ratio, BaseTerrain *terrain) : 
-	SimpleModel(shader_ptr), ObjectCollider(SPHERE) , TerrainAnimator(terrain) {
+	SimpleModel(shader_ptr, SPHERE), TerrainAnimator(terrain) {
 	std::vector<GLuint> index;
 	std::vector<Vertex> vertexArray;
 	vertexArray.resize(((slices + 1) * (stacks + 1)));

@@ -29,10 +29,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "SimpleModel.h"
-#include "ObjectCollider.h"
 #include "TerrainAnimator.h"
 
-class DLL_PUBLIC Sphere : public SimpleModel, public ObjectCollider, public TerrainAnimator
+class DLL_PUBLIC Sphere : public SimpleModel, public TerrainAnimator
 {
 public:
 	Sphere(Shader* shader_ptr, int slices, int stacks, 

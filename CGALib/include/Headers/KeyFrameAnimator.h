@@ -36,9 +36,10 @@
 #include <fstream>
 #include <sstream>
 
+#include "Animator.h"
 #include "HierarchicalModel.h"
 
-class DLL_PUBLIC KeyFrameAnimator {
+class DLL_PUBLIC KeyFrameAnimator : public Animator {
 
     public:
         KeyFrameAnimator(std::string animation, HierarchicalModel* model) : 

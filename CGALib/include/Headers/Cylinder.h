@@ -27,9 +27,8 @@
 #endif
 
 #include "SimpleModel.h"
-#include "ObjectCollider.h"
 
-class DLL_PUBLIC Cylinder : public SimpleModel, protected ObjectCollider {
+class DLL_PUBLIC Cylinder : public SimpleModel {
 public:
 	Cylinder(Shader* shader_ptr, int slices, int stacks, float topRadius = 1.0, float bottomRadius = 1.0, float height = 1.0);
 	

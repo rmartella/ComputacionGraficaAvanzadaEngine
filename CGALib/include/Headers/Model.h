@@ -31,13 +31,12 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
-#include "Renderable.h"
-#include "ObjectCollider.h"
+#include "ModelCollider.h"
 #include "Mesh.h"
 #include "BaseTerrain.h"
 #include "TerrainAnimator.h"
 
-class DLL_PUBLIC Model : public Renderable, public ObjectCollider, public TerrainAnimator {
+class DLL_PUBLIC Model : public ModelCollider, public TerrainAnimator {
 public:
 	Model(Shader* shader_ptr, const std::string & path, BaseTerrain* terrain = nullptr, TYPE_COLLIDER typeCollider = BOX);
 	~Model() = default;

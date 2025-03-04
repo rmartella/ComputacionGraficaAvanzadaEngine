@@ -77,7 +77,7 @@ void Mesh::render(float timeInSeconds, std::map<std::string, Bone>& bones, glm::
 	}
 
 	// Se Dibuja la maya
-	this->render();
+	Renderable::render();
 
 	shader_ptr->setInt("numBones", 0);
 
@@ -266,8 +266,4 @@ void Mesh::calculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTr
 	for (int i = 0; i < node->children.size(); i++)
 		calculateBoneTransform(&node->children[i], globalTransformation, 
 			pAnimation, animationTime, finalBoneMatrices, bones);
-}
-
-void Mesh::render() {
-	Drawable::draw();
 }

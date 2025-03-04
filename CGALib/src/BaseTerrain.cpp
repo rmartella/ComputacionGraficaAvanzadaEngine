@@ -8,7 +8,7 @@
 #include "Headers/BaseTerrain.h"
 
 BaseTerrain::BaseTerrain(Shader* shader_ptr, float yScale, float yShift, std::string heightMap) : 
-	yScale(yScale), yShift(yShift), SimpleModel(shader_ptr) {
+	yScale(yScale), yShift(yShift), SimpleModel(shader_ptr, NONE) {
 
 	textureHeightMap = new Texture2D(heightMap, false);
 	textureHeightMap->loadImage(true);
@@ -93,7 +93,7 @@ void BaseTerrain::init(){
 		}
 	}
 	
-	SimpleModel::init(vertexArray, index);
+	Drawable::init(vertexArray, index);
 }
 
 float BaseTerrain::getHeight(int x, int z, unsigned char * data, int imageWidth, int imageHeight, int numeroCanales){
